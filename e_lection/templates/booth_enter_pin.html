@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Booth{% endblock %}
+
+{% block head %}
+  {{ super() }}
+{% endblock %}
+
+{% block content %}
+  {{ super() }}
+You are the voter.
+{% endblock %}
+
+{% block body %}
+  {{ super() }}
+  <form action="" method="post" name="enter-voter-pin">
+    <div class="form-group booth-pin-entry">
+      <label class="control-label" for="voterpin">Type in your 6 digit PIN</label>
+      <input type="text" class="form-control" name="voterpin">
+      <p class="help-block">This is the one on the sheet of paper.</p>
+    </div>
+  </form>
+{% endblock %}
