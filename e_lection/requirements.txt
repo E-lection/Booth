@@ -1,0 +1,4 @@
+flask
+flask-appconfig>=0.10
+flask-debug
+flask-WTF
