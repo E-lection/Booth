@@ -1,3 +1,13 @@
 language: python
 python: '2.7'
 script: python -m unittest booth_tests
+deploy:
+  provider: elasticbeanstalk
+  access_key_id: AKIAILL4W3RIQMZAFTPQ
+  secret_access_key:
+    secure: knj8Cbt2SVV1C37ogBX9K8iJIphFmgTZ0PjSC5Orh2PIoIu9YKARdJIotBmf/SgqQ80L4nLoaLya+NRUZWgo5KxnsP+CI8sx50pm4Eri2PqeMNQf7IJ9W2G39GswGylApAH6G65F7SjgGErz+3o01KS5RF3V+PUtgFRTe5PnW0i9WuB/PlHeFN8CF/Z1xvqi4tAGUi/J64y6wtoGzZzf4rNpjzdarBJYeDDpgY3823lh0jw8+zT8SYseZ5Xl1MXPyHl+2y4WfRm1qQ/fFm1v99CyRE32MXoNDC8stYSz5ovTFZWMl/XVtD2AA3IC2vfW89i0hrABjONPY8Jw0t194uoLBOUseDc/18+n90mNs3FswL3RanNi64dnoxOmnk3s4nBkpaQRtrV/f0P0bhlYlKaXaOSnHeMPz3xXoCLJoTMG1SDSJNmk4/vs7x/wzlyDzSGk8tfFhLSz2fc68soWN84Rxc1TAXYVACYkI0fPrqzYm1BNUVk9D4SbyZmXwMv6S5DjXnqofTjULNswpE6b0qoeGw6RRwU0n0OFef4MkqFO7cFZ7PjmmLVNTEYmOCMCEv99Wd7TgZCNR4gl7eTNip3YAo3rNH7ImpWt6c/q49e8DO1KcwmX07TD5gbQjMxbz1KNXnrQrrhgTabSLk4moL/Zhfzi+gAy6fCcjXPyX20=
+  region: eu-west-2
+  app: e-lection-booth
+  env: booth-env
+  on:
+    repo: E-lection/Booth
