@@ -4,9 +4,13 @@
 from flask import Flask, render_template, request, redirect
 from flask_wtf import Form
 from forms import LoginForm
+from forms import PinForm
 from wtforms import StringField
 from flask.ext.login import LoginManager, UserMixin, \
                                 login_required, login_user, logout_user
+import flask_login
+import urllib, urllib2
+import json
 import models as db
 from passlib.apps import custom_app_context as pwd_context
 
@@ -82,20 +86,52 @@ def load_user(userid):
     users_with_id = filter(lambda x: x[0] == int(userid), users)
     if users_with_id:
         user = users_with_id[0]
-        return User(user[0], user[1], user[2])
+        return User(user[0], user[1], user[3])
     else:
         return None
 
 # Once logged in successfully, use booth app to vote
 @application.route('/', methods=['GET'])
 @login_required
-def station():
-    return render_template('enter_pin.html')
+def enter_pin():
+    form = PinForm(request.form)
+    return render_template('enter_pin.html', form=form)
+
+@application.route('/', methods=['POST'])
+@login_required
+def verify_pin():
+    form = PinForm(request.form)
+    if form.validate_on_submit():
+        pin = request.form['voterpin']
+        url = createPapiURL(pin)
+        print (url)
+        dbresult = urllib2.urlopen(url).read()
+        resultjson = json.loads(dbresult)
+        success = resultjson['success']
+        if success:
+            # matching entry found
+            voted = False
+            if voted:
+                return render_template('enter_pin.html', message="You've already voted. PIN already used", form=form)
+            else:
+                return redirect('/cast_vote')
+        else:
+            # no matching entry in database, try again
+            return render_template('enter_pin.html', message="Invalid Voter PIN", form=form)
+
+    return render_template('enter_pin.html', form=form)
 
 @application.route('/cast_vote')
 @login_required
 def booth_cast_vote():
     return render_template('cast_vote.html')
+
+def createPapiURL(pin):
+    station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))
+    pin = "/pin_code/" + urllib.quote(pin)
+    url = "http://pins.eelection.co.uk/verify_pin_code"+station_id+pin
+    return url
+
 
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be

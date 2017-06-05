@@ -1,7 +1,7 @@
-# Station
-Polling Station User Search and Pin Creation app for the E-lection system
+# Booth
+Polling Booth Pin verification and Voting app for the E-lection system
 
 $ virtualenv venv
 $ . venv/bin/activate
-$ export FLASK_APP=__init__.py
+$ export FLASK_APP=application.py
 $ python -m run flask
