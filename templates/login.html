@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+
+{% block head %}
+  {{ super() }}
+{% endblock %}
+
+{% block content %}
+  {{ super() }}
+  Log in using the Booth credentials you have been given.
+{% endblock %}
+
+{% block body %}
+  {{ super() }}
+  {% if message %}
+    <h3>{{ message }}</h3>
+  {% endif %}
+    <form action="{{ url_for('login') }}" method="post" name="login" autocomplete="off">
+      <div class="form-group booth-info-entry">
+        <label class="control-label" for="username">Username</label>
+        <input type="text" class="form-control form-login" name="username">
+        <p class="help-block">Enter booth username here.</p>
+      </div>
+      <div class="form-group booth-info-entry">
+        <label class="control-label" for="password">Password</label>
+        <input type="password" class="form-control form-login" name="password">
+        <p class="help-block">Enter password here.</p>
+      </div>
+      {{ form.csrf_token }}
+      <button class="btn btn-primary btn-start" type="submit" value="Login">Login</button>
+
+    </form>
+{% endblock %}
