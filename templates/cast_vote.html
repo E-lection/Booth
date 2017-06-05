@@ -12,33 +12,30 @@ You are the voter.
 
 {% block body %}
   {{ super() }}
-  <form action="" method="post" name="vote-party">
-
-    <div class="form-group">
-      <label class="block-label candidate-label">
-        A. Zac Goldsmith
-      </label>
-    </div>
-
-    <div class="form-group">
-      <label class="block-label candidate-label">
-        B. Jennifer Lea
-      </label>
-    </div>
-
-    <div class="form-group">
-      <label class="block-label candidate-label">
-        C. Nicola Sturgeon
-      </label>
-    </div>
-
-    <div class="form-group">
-      <label class="block-label candidate-label">
-        D. John Cena
-      </label>
-    </div>
-
-    <button class="btn btn-primary btn-start" type="submit" value="Vote">Cast your vote</button>
-
+  <form action="/cast_vote" method="post" name="form-cast-vote">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Firstname</th>
+          <th>Lastname</th>
+          <th>Constituency</th>
+          <th>Party</th>
+        </tr>
+      </thead>
+      <tbody>
+          <!--repeat this table row for each item in items-->
+          {% for candidate in candidates %}
+          <tr>
+              <td>{{candidate.fields.first_name}}</td>
+              <td>{{candidate.fields.last_name}}</td>
+              <td>{{candidate.fields.constituency}}</td>
+              <td>{{candidate.fields.party}}</td>
+              <td>
+                <button class="btn btn-primary vote-btn" type="submit" name="btn-vote-cast" value="Vote">VOTE</button>
+              </td>
+          </tr>
+          {% endfor %}
+      </tbody>
+    </table>
   </form>
 {% endblock %}

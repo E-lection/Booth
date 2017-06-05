@@ -18,7 +18,8 @@ application = Flask(__name__)
 
 application.config['TEMPLATES_AUTO_RELOAD'] = True
 application.secret_key = 'development key'
-
+candidates_json = None
+voter_active = False
 
 login_manager = LoginManager()
 login_manager.init_app(application)
@@ -26,7 +27,6 @@ login_manager.login_view = "login"
 
 # Booth User model
 class User(UserMixin):
-
     def __init__(self, id, username, station_id):
         self.id = id
         self.station_id = station_id
@@ -37,6 +37,7 @@ class User(UserMixin):
 
 @application.route('/login', methods=['GET', 'POST'])
 def login():
+    global candidates_json
     if request.method == 'POST':
         form = LoginForm(request.form)
         username = request.form['username']
@@ -45,6 +46,8 @@ def login():
         if valid_user:
             user = User(valid_user[0], username, valid_user[1])
             login_user(user)
+            # Get list of candidates on startup
+            # TODO: check for exception
             return redirect('')
         else:
             return render_template('login.html', message="Login unsuccessful.", form=form)
@@ -100,6 +103,7 @@ def enter_pin():
 @application.route('/', methods=['POST'])
 @login_required
 def verify_pin():
+    global voter_active
     form = PinForm(request.form)
     if form.validate_on_submit():
         pin = request.form['voterpin']
@@ -116,6 +120,8 @@ def verify_pin():
             if voted:
                 return render_template('enter_pin.html', message="You've already voted. PIN already used", form=form)
             else:
+                voter_active = True
+                print ('assigning voter_active to TRUE')
                 return redirect('/cast_vote')
         else:
             # no matching entry in database, try again
@@ -123,9 +129,24 @@ def verify_pin():
 
     return render_template('enter_pin.html', form=form)
 
-@application.route('/cast_vote')
+@application.route('/cast_vote', methods=['GET'])
 @login_required
-def booth_cast_vote():
+def choose_candidate():
+    global candidates_json
+    global voter_active
+    if voter_active:
+        if not candidates_json:
+            updateCandidatesJson()
+        return render_template('cast_vote.html', candidates=candidates_json['candidates'])
+    else:
+        # Voter not logged in
+        return redirect('')
+
+@application.route('/cast_vote', methods=['POST'])
+@login_required
+def cast_vote():
+    global voter_active
+    voter_active = False
     return render_template('cast_vote.html')
 
 def createPapiURL(pin):
@@ -134,6 +155,16 @@ def createPapiURL(pin):
     url = "http://pins.eelection.co.uk/verify_pin_code"+station_id+pin
     return url
 
+def createCandidatesURL():
+    station_id = "/" + urllib.quote(str(flask_login.current_user.station_id))
+    url = "http://voting.eelection.co.uk/get_candidates"+station_id
+    return url
+
+def updateCandidatesJson():
+    global candidates_json
+    dbresult = urllib2.urlopen(createCandidatesURL()).read()
+    resultjson = json.loads(dbresult)
+    candidates_json = resultjson
 
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
