@@ -104,8 +104,10 @@ def verify_pin():
     if form.validate_on_submit():
         pin = request.form['voterpin']
         url = createPapiURL(pin)
-        print (url)
-        dbresult = urllib2.urlopen(url).read()
+        try:
+            dbresult = urllib2.urlopen(url).read()
+        except:
+            return render_template('enter_pin.html', message="Inavlid Request", form=form)
         resultjson = json.loads(dbresult)
         success = resultjson['success']
         if success:
