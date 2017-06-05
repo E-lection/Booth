@@ -1,4 +1,4 @@
-flask
+flask==0.12.2
 flask-appconfig>=0.10
-flask-debug
-flask-WTF
+flask-debug==0.4.3
+flask-WTF==0.14.2

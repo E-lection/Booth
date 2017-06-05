@@ -17,14 +17,13 @@ application.secret_key = 'development key'
 def index():
     return render_template('index.html')
 
-@application.route('/booth_enter_pin')
+@application.route('/enter_pin')
 def booth_enter_pin():
-    return render_template('booth_enter_pin.html')
+    return render_template('enter_pin.html')
 
-@application.route('/booth_cast_vote')
+@application.route('/cast_vote')
 def booth_cast_vote():
-    return render_template('booth_cast_vote.html')
-
+    return render_template('cast_vote.html')
 
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
