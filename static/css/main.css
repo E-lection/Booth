@@ -22,20 +22,6 @@
   padding-left: 30px;
 }
 
-
-/* STATION FORM STUFF */
-.station-info-entry {
-  display: block;
-  width: 60%;
-  padding-bottom: 10px;
-  line-height: 1.5;
-  font-size: 30px;
-}
-
-.station-info-entry > p{
-  font-size: 20px;
-}
-
 .form-control {
   font-size: 20px;
   height: 45px;
@@ -50,11 +36,14 @@
   width: 400px;
 }
 
-/**************** BOOTH *****************/
-
-.candidate-label {
-  font-size: 70%;
-  padding: 12px 15px 15px 15px;
+/* VOTE CASTING OPTIONS */
+.block-label {
+    vertical-align: middle;
+    line-height: 40px;
+    font-size: 30px;
 }
 
-/****************************************/
+.checkbox label.block-label {
+    padding: 15px;
+    margin-bottom: 10px;
+}

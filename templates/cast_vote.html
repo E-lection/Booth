@@ -3,11 +3,13 @@
 
 {% block head %}
   {{ super() }}
+  <script type="text/javascript" src="{{ url_for('static', filename='castvote.js') }}"></script>
 {% endblock %}
 
 {% block content %}
   {{ super() }}
-  These are your candidates for the constituency of {{ candidates[0].fields.constituency }}
+  <p>These are your candidates for the constituency of {{ candidates[0].fields.constituency }}.</p>
+  <p>Press the number next to your desired candidate followed by the Enter key.</p>
 {% endblock %}
 
 {% block body %}
@@ -17,8 +19,8 @@
     <!--repeat this table row for each item in items-->
     {% for candidate in candidates %}
       <div class="checkbox">
-        <label class="block-label">
-          <input type="checkbox" name="fruits"> {{candidate.fields.first_name}} {{candidate.fields.last_name}} - {{candidate.fields.party}}
+        <label class="block-label" id="{{ loop.index }}">
+          {{ loop.index }}. {{ candidate.fields.first_name }} {{ candidate.fields.last_name }} - {{ candidate.fields.party }}
         </label>
       </div>
     {% endfor %}
