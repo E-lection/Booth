@@ -13,13 +13,17 @@
   <body>
 
     <nav class="navbar">
-      <div class="container navbar-wrapper">
-        <div class="navbar-header">
-          <a class="navbar-brand" id="logo"> E-LECTION </a>
+      <div class="content">
+        <div class="container navbar-wrapper">
+          <div class="navbar-header">
+            <img class="navbar-logo" src="/static/img/crown.png">
+            <a href="/" class="navbar-brand" id="logo"> E-LECTION
+
+            </a>
+          </div>
         </div>
       </div>
     </nav>
-
 
     <section class="container-fluid hero-banner">
       <div class="content">
@@ -30,25 +34,12 @@
         </div>
       </div>
     </section>
-    {# <!-- This is a general banner in light blue -->
-    <!-- <section class="container-fluid banner">
-      <div class="content">
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="banner-message">
-              <h2>This is still beta <span class="phase-tag-beta">BETA</span></h2>
-              {% block body %}{% endblock %}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section> --> #}
 
     <section class="container-fluid">
       <div class="content">
         <div class="row">
           <div class="col-sm-12">
-            <h1>{% block body %}{% endblock %}</h1>
+            {% block body %}{% endblock %}
           </div>
         </div>
       </div>
@@ -56,19 +47,11 @@
 
     <section class="container-fluid footer">
       <div class="content">
-        <!-- <div class="row footer-top">
-          <div class="col-sm-8">
-            <h2></h2>
-          </div>
-          <div class="col-sm-4">
-            <h2></h2>
-          </div>
-        </div> -->
         <div class="row footer-bottom">
-          Votes n hoes xoxo
+          Coming soon to a polling station near you...
         </div>
       </div>
-</section>
+    </section>
 
     <script src="http://code.jquery.com/jquery-latest.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
