@@ -147,7 +147,7 @@ def choose_candidate():
 def cast_vote():
     global voter_active
     voter_active = False
-    return render_template('cast_vote.html')
+    return 'Thank you for voting!'
 
 def createPapiURL(pin):
     station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))
@@ -165,6 +165,12 @@ def updateCandidatesJson():
     dbresult = urllib2.urlopen(createCandidatesURL()).read()
     resultjson = json.loads(dbresult)
     candidates_json = resultjson
+
+def postVote(voteJson):
+    url = "http://results.eelection.co.uk/"
+    req = urllib2.Request(url)
+    req.add_header('Content-Type', 'application/json')
+    response = urllib2.urlopen(req, json.dumps(voteJson))
 
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
