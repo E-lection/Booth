@@ -6,9 +6,9 @@ from flask_wtf import FlaskForm as Form
 from forms import LoginForm
 from forms import PinForm
 from wtforms import StringField
-from flask.ext.login import LoginManager, UserMixin, \
-                                login_required, login_user, logout_user
 import flask_login
+from flask_login import LoginManager, UserMixin, \
+                                login_required, login_user, logout_user
 import urllib, urllib2
 import json
 import models as db
@@ -148,7 +148,6 @@ def cast_vote():
     if voter_active:
         voter_active = False
         candidate_id = int(request.form['candidate_id']) - 1
-        print (candidates_json['candidates'][candidate_id])
     return redirect('')
 
 def createPapiURL(pin):
