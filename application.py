@@ -13,6 +13,7 @@ import urllib, urllib2
 import json
 import models as db
 from passlib.apps import custom_app_context as pwd_context
+import requests
 
 application = Flask(__name__)
 
@@ -148,6 +149,8 @@ def cast_vote():
     if voter_active:
         voter_active = False
         candidate_id = int(request.form['candidate_id']) - 1
+        voted_candidate = candidates_json['candidates'][candidate_id]['fields']
+        cast_vote(voted_candidate)
     return redirect('')
 
 def createPapiURL(pin):
@@ -166,6 +169,12 @@ def updateCandidatesJson():
     dbresult = urllib2.urlopen(createCandidatesURL()).read()
     resultjson = json.loads(dbresult)
     candidates_json = resultjson
+
+def cast_vote(voted_candidate):
+    url = "https://results.eelection.co.uk/"
+    headers = {"Content-Type":"application/json","Accept":"application/json"}
+    # response = requests.post(url=url, headers=headers, data=voted_candidate)
+    # return response.status_code
 
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
