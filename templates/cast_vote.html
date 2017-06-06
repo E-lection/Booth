@@ -7,35 +7,20 @@
 
 {% block content %}
   {{ super() }}
-You are the voter.
+  These are your candidates for the constituency of {{ candidates[0].fields.constituency }}
 {% endblock %}
 
 {% block body %}
   {{ super() }}
   <form action="/cast_vote" method="post" name="form-cast-vote">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Firstname</th>
-          <th>Lastname</th>
-          <th>Constituency</th>
-          <th>Party</th>
-        </tr>
-      </thead>
-      <tbody>
-          <!--repeat this table row for each item in items-->
-          {% for candidate in candidates %}
-          <tr>
-              <td>{{candidate.fields.first_name}}</td>
-              <td>{{candidate.fields.last_name}}</td>
-              <td>{{candidate.fields.constituency}}</td>
-              <td>{{candidate.fields.party}}</td>
-              <td>
-                <button class="btn btn-primary vote-btn" type="submit" name="btn-vote-cast" value="Vote">VOTE</button>
-              </td>
-          </tr>
-          {% endfor %}
-      </tbody>
-    </table>
+
+    <!--repeat this table row for each item in items-->
+    {% for candidate in candidates %}
+      <div class="checkbox">
+        <label class="block-label">
+          <input type="checkbox" name="fruits"> {{candidate.fields.first_name}} {{candidate.fields.last_name}} - {{candidate.fields.party}}
+        </label>
+      </div>
+    {% endfor %}
   </form>
 {% endblock %}
