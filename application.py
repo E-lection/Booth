@@ -2,7 +2,7 @@
 # $ python -m flask run
 
 from flask import Flask, render_template, request, redirect
-from flask_wtf import Form
+from flask_wtf import FlaskForm as Form
 from forms import LoginForm
 from forms import PinForm
 from wtforms import StringField
@@ -121,25 +121,35 @@ def verify_pin():
                 return render_template('enter_pin.html', message="You've already voted. PIN already used", form=form)
             else:
                 voter_active = True
-                print ('assigning voter_active to TRUE')
-                global candidates_json
-                if not candidates_json:
-                    updateCandidatesJson()
-                return render_template('cast_vote.html', candidates=candidates_json['candidates'])
+                return redirect('/cast_vote')
         else:
             # no matching entry in database, try again
             return render_template('enter_pin.html', message="Invalid Voter PIN", form=form)
 
     return render_template('enter_pin.html', form=form)
 
+@application.route('/cast_vote', methods=['GET'])
+@login_required
+def choose_candidate():
+    global voter_active
+    global candidates_json
+    if not voter_active:
+        return redirect('')
+    else:
+        if not candidates_json:
+            updateCandidatesJson()
+        return render_template('cast_vote.html', candidates=candidates_json['candidates'])
+
 @application.route('/cast_vote', methods=['POST'])
 @login_required
 def cast_vote():
     global voter_active
-    voter_active = False
-    jsdata = request.form['javascript_data']
-    print jsdata
-    return jsdata
+    global candidates_json
+    if voter_active:
+        voter_active = False
+        candidate_id = int(request.form['candidate_id']) - 1
+        print (candidates_json['candidates'][candidate_id])
+    return redirect('')
 
 def createPapiURL(pin):
     station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))
