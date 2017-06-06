@@ -122,32 +122,24 @@ def verify_pin():
             else:
                 voter_active = True
                 print ('assigning voter_active to TRUE')
-                return redirect('/cast_vote')
+                global candidates_json
+                if not candidates_json:
+                    updateCandidatesJson()
+                return render_template('cast_vote.html', candidates=candidates_json['candidates'])
         else:
             # no matching entry in database, try again
             return render_template('enter_pin.html', message="Invalid Voter PIN", form=form)
 
     return render_template('enter_pin.html', form=form)
 
-@application.route('/cast_vote', methods=['GET'])
-@login_required
-def choose_candidate():
-    global candidates_json
-    global voter_active
-    if voter_active:
-        if not candidates_json:
-            updateCandidatesJson()
-        return render_template('cast_vote.html', candidates=candidates_json['candidates'])
-    else:
-        # Voter not logged in
-        return redirect('')
-
 @application.route('/cast_vote', methods=['POST'])
 @login_required
 def cast_vote():
     global voter_active
     voter_active = False
-    return render_template('cast_vote.html')
+    jsdata = request.form['javascript_data']
+    print jsdata
+    return jsdata
 
 def createPapiURL(pin):
     station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))

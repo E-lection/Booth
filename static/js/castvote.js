@@ -40,7 +40,11 @@ window.onload = function(){
 
       // If they press the enter keyCode
       if (keycode === keycode_enter && current_selected != "") {
-        alert("You are going to vote for " + document.getElementById(current_selected).textContent);
+        var votee = document.getElementById(current_selected).textContent;
+        alert("You are going to vote for " + votee);
+        $.post( "/cast_vote", {
+          javascript_data: votee
+        });
       }
   };
 };
