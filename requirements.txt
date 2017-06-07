@@ -4,3 +4,4 @@ flask-debug==0.4.3
 flask-WTF==0.14.2
 flask-login
 passlib==1.7.1
+requests
