@@ -99,6 +99,9 @@ def load_user(userid):
 @application.route('/', methods=['GET'])
 @login_required
 def enter_pin():
+    global voter_active
+    if voter_active:
+        return redirect('/cast-vote')
     form = PinForm(request.form)
     return render_template('enter_pin.html', form=form)
 
@@ -106,6 +109,9 @@ def enter_pin():
 @login_required
 def verify_pin():
     global voter_active
+    if voter_active:
+        return redirect('/cast-vote')
+
     form = PinForm(request.form)
     if form.validate_on_submit():
         pin = request.form['voterpin']
@@ -162,7 +168,6 @@ def show_candidate():
     global candidates_json
     global voted_candidate
     if voter_active and voted_candidate:
-        print (voted_candidate)
         return render_template('confirm_vote.html', candidate=voted_candidate)
     else:
         return redirect('')
