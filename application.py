@@ -37,26 +37,26 @@ class User(UserMixin):
     def __repr__(self):
         return "%s/%d" % (self.username, self.station_id)
 
+# Displays login page for the clerk to set up the booth
 @application.route('/login', methods=['GET', 'POST'])
 def login():
     global candidates_json
+    form = LoginForm(request.form)
+    # If someone has tried to log in
     if request.method == 'POST':
-        form = LoginForm(request.form)
         username = request.form['username']
         password = request.form['password']
         valid_user = get_valid_user(username, password)
         if valid_user:
             user = User(valid_user[0], username, valid_user[1])
             login_user(user)
-            # Get list of candidates on startup
-            # TODO: check for exception
+            updateCandidatesJson
             return redirect('')
         else:
             return render_template('login.html', message="Login unsuccessful.", form=form)
-    else:
-        form = LoginForm(request.form)
-        return render_template('login.html', form=form)
+    return render_template('login.html', form=form)
 
+# Checks user user_id and station_id for that usename and password
 def get_valid_user(username, password):
     users = db.retrieveUsers()
     user_id = -1
@@ -69,7 +69,9 @@ def get_valid_user(username, password):
                 station_id = user[3]
                 return (user_id, station_id)
             break
+    #TODO: Error if there is no user matching
     return None
+
 
 @application.route("/logout")
 @login_required
@@ -191,22 +193,26 @@ def confirm_vote():
 def spoil_ballot():
     return render_template('spoil_ballot.html')
 
+# Gets url to check if the voter pin is ok
 def createPapiURL(pin):
     station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))
     pin = "/pin_code/" + urllib.quote(pin)
     url = "http://pins.eelection.co.uk/verify_pin_code"+station_id+pin
     return url
 
+# Gets the list of candidates for that station
 def createCandidatesURL():
     station_id = "/" + urllib.quote(str(flask_login.current_user.station_id))
     url = "http://voting.eelection.co.uk/get_candidates"+station_id
     return url
 
+# Sets candidates_json to the correct stuff for that station
 def updateCandidatesJson():
     global candidates_json
     dbresult = urllib2.urlopen(createCandidatesURL()).read()
     resultjson = json.loads(dbresult)
     candidates_json = resultjson
+
 
 def send_vote(voted_candidate):
     url = "https://results.eelection.co.uk/"
