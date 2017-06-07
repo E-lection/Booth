@@ -40,10 +40,20 @@ window.onload = function(){
 
       // If they press the enter keyCode
       if (keycode === keycode_enter && current_selected != "") {
-        var candidate_name = document.getElementById(current_selected).textContent;
-        alert("You are going to vote for " + candidate_name);
-        $.post( "/cast-vote", {
-          candidate_id: current_selected
+        // var candidate_name = document.getElementById(current_selected).textContent;
+        $.ajax({
+          type: "POST",
+          url: "/cast-vote",
+          contentType: 'application/json;charset=UTF-8',
+          data: JSON.stringify({
+            "candidate_id": current_selected
+          }),
+          success: function(data) {
+            window.location.replace('/confirm-vote');
+          },
+          error: function(e) {
+            alert("Error Occurred")
+          },
         });
       }
   };

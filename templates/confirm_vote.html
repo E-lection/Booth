@@ -3,7 +3,7 @@
 
 {% block head %}
   {{ super() }}
-  <script type="text/javascript" src="{{ url_for('static', filename='js/castvote.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/confirmvote.js') }}"></script>
 {% endblock %}
 
 {% block content %}
@@ -13,8 +13,11 @@
 
 {% block body %}
   {{ super() }}
-  * Put name of who they have voted for here *
-
+  <div>
+    <label class="block-label">
+      {{ candidate.first_name }} {{ candidate.last_name }} - {{ candidate.party }}
+    </label>
+  </div>
   <p class="help-block cast-vote" id="cast-vote">Press <b>enter</b> to confirm.</p>
   <p class="help-block cast-vote" id="cast-vote">Press <b>any other key</b> to go back.</p>
 {% endblock %}

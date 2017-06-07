@@ -21,6 +21,7 @@ application.config['TEMPLATES_AUTO_RELOAD'] = True
 application.secret_key = 'development key'
 candidates_json = None
 voter_active = False
+voted_candidate = None
 
 login_manager = LoginManager()
 login_manager.init_app(application)
@@ -146,13 +147,38 @@ def choose_candidate():
 def cast_vote():
     global voter_active
     global candidates_json
+    global voted_candidate
     if voter_active:
-        voter_active = False
-        candidate_id = int(request.form['candidate_id']) - 1
+        candidate_id = int(request.json['candidate_id']) - 1
         voted_candidate = candidates_json['candidates'][candidate_id]['fields']
-        send_vote(voted_candidate)
-    return redirect('')
+        return 'OK'
+    else:
+        return redirect('')
 
+@application.route('/confirm-vote', methods=['GET'])
+@login_required
+def show_candidate():
+    global voter_active
+    global candidates_json
+    global voted_candidate
+    if voter_active and voted_candidate:
+        print (voted_candidate)
+        return render_template('confirm_vote.html', candidate=voted_candidate)
+    else:
+        return redirect('')
+
+@application.route('/confirm-vote', methods=['POST'])
+@login_required
+def confirm_vote():
+    global voter_active
+    global candidates_json
+    global voted_candidate
+    confirm = int(request.json['confirm'])
+    if confirm and voter_active and voted_candidate:
+        # send_vote(voted_candidate)
+        voter_active = False
+        voted_candidate = None
+    return 'OK'
 def createPapiURL(pin):
     station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))
     pin = "/pin_code/" + urllib.quote(pin)
