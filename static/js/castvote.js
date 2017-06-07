@@ -12,6 +12,7 @@ window.onload = function(){
 
   // ID of what is currently selected
   var current_selected = "";
+  var selected_candidate_pk;
 
   // If the user presses a button
   document.onkeypress = function(e){
@@ -34,6 +35,7 @@ window.onload = function(){
           // Colour in the newly selected thing
           document.getElementById(num_selected).style.backgroundColor = "#005ea5";
           document.getElementById(num_selected).style.color = "#fff";
+          selected_candidate_pk = document.getElementById(num_selected).getAttribute('name');
           current_selected = num_selected;
         }
       }
@@ -41,20 +43,24 @@ window.onload = function(){
       // If they press the enter keyCode
       if (keycode === keycode_enter && current_selected != "") {
         // var candidate_name = document.getElementById(current_selected).textContent;
-        $.ajax({
-          type: "POST",
-          url: "/cast-vote",
-          contentType: 'application/json;charset=UTF-8',
-          data: JSON.stringify({
-            "candidate_id": current_selected
-          }),
-          success: function(data) {
-            window.location.replace('/confirm-vote');
-          },
-          error: function(e) {
-            alert("Error Occurred")
-          },
-        });
+        if (selected_candidate_pk === "spoil") {
+          window.location.replace('/spoil-ballot');
+        } else {
+          $.ajax({
+            type: "POST",
+            url: "/cast-vote",
+            contentType: 'application/json;charset=UTF-8',
+            data: JSON.stringify({
+              "candidate_id": selected_candidate_pk
+            }),
+            success: function(data) {
+              window.location.replace('/confirm-vote');
+            },
+            error: function(e) {
+              alert("Error Occurred")
+            },
+          });
+        }
       }
   };
 };

@@ -18,7 +18,7 @@ You are the voter.
   <form action="{{ url_for('verify_pin') }}" method="post" name="verify-pin">
     <div class="form-group booth-pin-entry">
       <label class="control-label" for="voterPin">Type in your 6 digit PIN and press Enter</label>
-      <input type="text" class="form-control" name="voterpin">
+      <input type="text" class="form-control" name="voterpin" autofocus="autofocus">
       <p class="help-block">This is the one on the sheet of paper.</p>
     </div>
     {{ form.csrf_token }}

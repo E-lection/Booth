@@ -136,6 +136,7 @@ def verify_pin():
 
     return render_template('enter_pin.html', form=form)
 
+# Checks if the voter is logged in and loads candidate options
 @application.route('/cast-vote', methods=['GET'])
 @login_required
 def choose_candidate():
@@ -184,6 +185,12 @@ def confirm_vote():
         voter_active = False
         voted_candidate = None
     return 'OK'
+
+@application.route('/spoil-ballot')
+@login_required
+def spoil_ballot():
+    return render_template('spoil_ballot.html')
+
 def createPapiURL(pin):
     station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))
     pin = "/pin_code/" + urllib.quote(pin)
