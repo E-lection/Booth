@@ -122,14 +122,14 @@ def verify_pin():
                 return render_template('enter_pin.html', message="You've already voted. PIN already used", form=form)
             else:
                 voter_active = True
-                return redirect('/cast_vote')
+                return redirect('/cast-vote')
         else:
             # no matching entry in database, try again
             return render_template('enter_pin.html', message="Invalid Voter PIN", form=form)
 
     return render_template('enter_pin.html', form=form)
 
-@application.route('/cast_vote', methods=['GET'])
+@application.route('/cast-vote', methods=['GET'])
 @login_required
 def choose_candidate():
     global voter_active
@@ -141,7 +141,7 @@ def choose_candidate():
             updateCandidatesJson()
         return render_template('cast_vote.html', candidates=candidates_json['candidates'])
 
-@application.route('/cast_vote', methods=['POST'])
+@application.route('/cast-vote', methods=['POST'])
 @login_required
 def cast_vote():
     global voter_active
@@ -150,7 +150,7 @@ def cast_vote():
         voter_active = False
         candidate_id = int(request.form['candidate_id']) - 1
         voted_candidate = candidates_json['candidates'][candidate_id]['fields']
-        cast_vote(voted_candidate)
+        send_vote(voted_candidate)
     return redirect('')
 
 def createPapiURL(pin):
@@ -170,7 +170,7 @@ def updateCandidatesJson():
     resultjson = json.loads(dbresult)
     candidates_json = resultjson
 
-def cast_vote(voted_candidate):
+def send_vote(voted_candidate):
     url = "https://results.eelection.co.uk/"
     headers = {"Content-Type":"application/json","Accept":"application/json"}
     # response = requests.post(url=url, headers=headers, data=voted_candidate)

@@ -42,7 +42,7 @@ window.onload = function(){
       if (keycode === keycode_enter && current_selected != "") {
         var candidate_name = document.getElementById(current_selected).textContent;
         alert("You are going to vote for " + candidate_name);
-        $.post( "/cast_vote", {
+        $.post( "/cast-vote", {
           candidate_id: current_selected
         });
       }

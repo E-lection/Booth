@@ -14,8 +14,7 @@
 
 {% block body %}
   {{ super() }}
-  <form action="" method="post" name="form-cast-vote">
-
+  <form action="{{ url_for('cast_vote') }}" method="post" name="form-cast-vote">
     <!--repeat this table row for each item in items-->
     {% for candidate in candidates %}
       <div class="checkbox">
