@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Booth{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <script type="text/javascript" src="{{ url_for('static', filename='js/castvote.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+  {{ super() }}
+  <p>You have selected: </p>
+{% endblock %}
+
+{% block body %}
+  {{ super() }}
+  * Put name of who they have voted for here *
+
+  <p class="help-block cast-vote" id="cast-vote">Press <b>enter</b> to confirm.</p>
+  <p class="help-block cast-vote" id="cast-vote">Press <b>any other key</b> to go back.</p>
+{% endblock %}
