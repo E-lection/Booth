@@ -36,6 +36,28 @@
   width: 400px;
 }
 
+/* BOOTH LOGIN */
+.booth-info-entry {
+  font-size: 25px;
+}
+
+.booth-info-entry > .help-block {
+  font-size: 20px;
+}
+
+/* INSERT PIN STUFF */
+.booth-pin-entry {
+  line-height: 50px;
+}
+
+.booth-pin-entry > .control-label {
+  font-size: 25px;
+}
+
+.booth-pin-entry > .help-block {
+  font-size: 20px;
+}
+
 /* VOTE CASTING OPTIONS */
 .block-label {
     vertical-align: middle;
