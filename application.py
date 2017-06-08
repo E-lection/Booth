@@ -50,7 +50,6 @@ def login():
         if valid_user:
             user = User(valid_user[0], username, valid_user[1])
             login_user(user)
-            updateCandidatesJson
             return redirect('')
         else:
             return render_template('login.html', message="Login unsuccessful.", form=form)
@@ -158,8 +157,11 @@ def cast_vote():
     global candidates_json
     global voted_candidate
     if voter_active:
-        candidate_id = int(request.json['candidate_id']) - 1
-        voted_candidate = candidates_json['candidates'][candidate_id]['fields']
+        candidate_id = int(request.json['candidate_id'])
+        if not candidate_id:
+            voted_candidate = 'SPOILT'
+        else:
+            voted_candidate = candidates_json['candidates'][candidate_id - 1]['fields']
         return 'OK'
     else:
         return redirect('')
@@ -189,11 +191,6 @@ def confirm_vote():
         print "here"
         return render_template('youve_voted.html')
     return 'OK'
-
-@application.route('/spoil-ballot')
-@login_required
-def spoil_ballot():
-    return render_template('spoil_ballot.html')
 
 @application.route('/youve-voted')
 @login_required
