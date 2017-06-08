@@ -187,7 +187,8 @@ def confirm_vote():
     global vote_sent
     confirm = int(request.json['confirm'])
     if confirm and voter_active and voted_candidate:
-        if send_vote(voted_candidate):
+        # TODO: What do we send in case of spoilt ballot
+        if sendVote(voted_candidate):
             # Voting successful
             voter_active = False
             voted_candidate = None
@@ -228,8 +229,7 @@ def updateCandidatesJson():
     resultjson = json.loads(dbresult)
     candidates_json = resultjson
 
-
-def send_vote(voted_candidate):
+def sendVote(voted_candidate):
     url = "http://results.eelection.co.uk/vote/"
     response = requests.post(url=url, data=json.dumps(voted_candidate))
     return  response.status_code==200
