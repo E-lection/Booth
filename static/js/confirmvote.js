@@ -11,7 +11,7 @@ window.onload = function(){
   document.onkeypress = function(e){
       var keycode = code(e);
 
-      // If this is the enter key
+      // If this is the enter key we say they've voted
       if (keycode === keycode_enter) {
         $.ajax({
           type: "POST",
@@ -21,7 +21,7 @@ window.onload = function(){
             "confirm": 1
           }),
           success: function(data) {
-            window.location.replace('/');
+            window.location.replace('/youve-voted');
           },
           error: function(e) {
             alert("Error Occurred")

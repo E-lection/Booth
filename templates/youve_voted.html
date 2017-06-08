@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Booth{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <script type="text/javascript" src="{{ url_for('static', filename='js/youvoted.js') }}"></script>
+  <script>
+  </script>
+{% endblock %}
+
+{% block content %}
+  {{ super() }}
+  <p>Congratulations! You have voted. </p>
+{% endblock %}
+
+{% block body %}
+  {{ super() }}
+  <div class="count-down">
+    10
+  </div>
+{% endblock %}

@@ -186,12 +186,19 @@ def confirm_vote():
         # send_vote(voted_candidate)
         voter_active = False
         voted_candidate = None
+        print "here"
+        return render_template('youve_voted.html')
     return 'OK'
 
 @application.route('/spoil-ballot')
 @login_required
 def spoil_ballot():
     return render_template('spoil_ballot.html')
+
+@application.route('/youve-voted')
+@login_required
+def youve_voted():
+    return render_template('youve_voted.html')
 
 # Gets url to check if the voter pin is ok
 def createPapiURL(pin):
