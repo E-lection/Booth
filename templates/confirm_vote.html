@@ -13,10 +13,14 @@
 
 {% block body %}
   {{ super() }}
+
   <div class="confirm-vote">
-    <label class="block-label">
-      {{ candidate.first_name }} {{ candidate.last_name }} - {{ candidate.party }}
-    </label>
+    {% if candidate=='SPOILT' %}
+      <label class="block-label"> Spoil Ballot </label>
+    {% else %}
+      <label class="block-label"> {{ candidate.first_name }} {{ candidate.last_name }} - {{ candidate.party }} </label>
+    {% endif %}
     <p class="help-block">Press <b>enter</b> to confirm or <b>any other key</b> to go back.
   </div>
+
 {% endblock %}
