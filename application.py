@@ -22,6 +22,7 @@ application.secret_key = 'development key'
 candidates_json = None
 voter_active = False
 voted_candidate = None
+vote_sent = False
 
 login_manager = LoginManager()
 login_manager.init_app(application)
@@ -161,7 +162,7 @@ def cast_vote():
         if not candidate_id:
             voted_candidate = 'SPOILT'
         else:
-            voted_candidate = candidates_json['candidates'][candidate_id - 1]['fields']
+            voted_candidate = getCandidateWithPK(candidate_id, candidates_json['candidates'])
         return 'OK'
     else:
         return redirect('')
@@ -183,17 +184,28 @@ def confirm_vote():
     global voter_active
     global candidates_json
     global voted_candidate
+    global vote_sent
     confirm = int(request.json['confirm'])
     if confirm and voter_active and voted_candidate:
-        # send_vote(voted_candidate)
-        voter_active = False
-        voted_candidate = None
-        return render_template('youve_voted.html')
-    return 'OK'
+        if send_vote(voted_candidate):
+            # Voting successful
+            voter_active = False
+            voted_candidate = None
+            vote_sent = True
+        return 'OK'
+    else:
+        return redirect('')
 
 @application.route('/youve-voted')
 @login_required
 def youve_voted():
+    global voter_active
+    global voted_candidate
+    global vote_sent
+    # Voting unsuccessful, retry (should redirect to enter pin?)
+    if voter_active and voted_candidate and (not vote_sent):
+        return redirect('/cast-vote')
+    vote_sent = False
     return render_template('youve_voted.html')
 
 # Gets url to check if the voter pin is ok
@@ -218,11 +230,16 @@ def updateCandidatesJson():
 
 
 def send_vote(voted_candidate):
-    url = "https://results.eelection.co.uk/"
-    headers = {"Content-Type":"application/json","Accept":"application/json"}
-    # response = requests.post(url=url, headers=headers, data=voted_candidate)
-    # return response.status_code
+    url = "http://results.eelection.co.uk/vote/"
+    response = requests.post(url=url, data=json.dumps(voted_candidate))
+    return  response.status_code==200
 
+def getCandidateWithPK(pk, candidates):
+    global candidates_json
+    for candidate in candidates:
+        if candidate['pk'] == pk:
+            return candidate['fields']
+    return None
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app.

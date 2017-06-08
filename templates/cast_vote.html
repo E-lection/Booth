@@ -16,20 +16,19 @@
   {{ super() }}
   <!--<form action="{{ url_for('cast_vote') }}" method="post" name="form-cast-vote">-->
   <div class="form-cast-vote">
-    <div class="checkbox">
-      <label class="block-label" id="{{ 1 }}" name="{{ 0 }}">
-        {{ 1 }}. Spoil ballot
-      </label>
-    </div>
     <!--repeat this table row for each item in items-->
     {% for candidate in candidates %}
       <div class="checkbox">
-        <label class="block-label" id="{{ loop.index + 1 }}" name="{{ candidate.pk }}">
-          {{ loop.index + 1 }}. {{ candidate.fields.first_name }} {{ candidate.fields.last_name }} - {{ candidate.fields.party }}
+        <label class="block-label" id="{{ loop.index }}" name="{{ candidate.pk }}">
+          {{ loop.index }}. {{ candidate.fields.first_name }} {{ candidate.fields.last_name }} - {{ candidate.fields.party }}
         </label>
       </div>
     {% endfor %}
+    <div class="checkbox">
+      <label class="block-label" id="{{ candidates|length + 1 }}" name="{{ 0 }}">
+        {{ candidates|length + 1 }}. Spoil ballot
+      </label>
+    </div>
   </div>
-
   <p class="help-block cast-vote" id="cast-vote"><b>Press enter to cast your vote.</b></p>
 {% endblock %}
