@@ -50,7 +50,6 @@ def login():
         if valid_user:
             user = User(valid_user[0], username, valid_user[1])
             login_user(user)
-            updateCandidatesJson
             return redirect('')
         else:
             return render_template('login.html', message="Login unsuccessful.", form=form)
