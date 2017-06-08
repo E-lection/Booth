@@ -188,7 +188,6 @@ def confirm_vote():
         # send_vote(voted_candidate)
         voter_active = False
         voted_candidate = None
-        print "here"
         return render_template('youve_voted.html')
     return 'OK'
 
