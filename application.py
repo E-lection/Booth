@@ -123,11 +123,14 @@ def verify_pin():
         success = resultjson['success']
         if success:
             # matching entry found
+            # TODO: What to do when the user has already voted?, where to the 'voted' field from?
             voted = False
             if voted:
                 return render_template('enter_pin.html', message="You've already voted. PIN already used", form=form)
             else:
                 session['voter_active'] = True
+                session['vote_sent'] = False
+                session['candidates_json'] = None
                 return redirect('/cast-vote')
         else:
             # no matching entry in database, try again
@@ -185,11 +188,9 @@ def confirm_vote():
 @application.route('/youve-voted')
 @login_required
 def youve_voted():
-    # Voting unsuccessful, retry (should redirect to enter pin?)
+    # Voting unsuccessful, retry (should redirect to enter pin?), we have the voted_candidate with us though
     if session['voter_active'] and session['voted_candidate'] and (not session['vote_sent']):
         return redirect('/cast-vote')
-    session['vote_sent'] = False
-    session.pop('candidates_json', None)
     return render_template('youve_voted.html')
 
 # Gets url to check if the voter pin is ok
