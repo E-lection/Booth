@@ -1,7 +1,7 @@
 # $ pip install --upgrade -r requirements.txt
 # $ python -m flask run
 
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session
 from flask_wtf import FlaskForm as Form
 from forms import LoginForm
 from forms import PinForm
@@ -19,10 +19,6 @@ application = Flask(__name__)
 
 application.config['TEMPLATES_AUTO_RELOAD'] = True
 application.secret_key = 'development key'
-candidates_json = None
-voter_active = False
-voted_candidate = None
-vote_sent = False
 
 login_manager = LoginManager()
 login_manager.init_app(application)
@@ -41,7 +37,6 @@ class User(UserMixin):
 # Displays login page for the clerk to set up the booth
 @application.route('/login', methods=['GET', 'POST'])
 def login():
-    global candidates_json
     form = LoginForm(request.form)
     # If someone has tried to log in
     if request.method == 'POST':
@@ -51,6 +46,10 @@ def login():
         if valid_user:
             user = User(valid_user[0], username, valid_user[1])
             login_user(user)
+            session['candidates_json'] = None
+            session['voter_active'] = False
+            session['voted_candidate'] = None
+            session['vote_sent'] = False
             return redirect('')
         else:
             return render_template('login.html', message="Login unsuccessful.", form=form)
@@ -101,8 +100,7 @@ def load_user(userid):
 @application.route('/', methods=['GET'])
 @login_required
 def enter_pin():
-    global voter_active
-    if voter_active:
+    if session['voter_active']:
         return redirect('/cast-vote')
     form = PinForm(request.form)
     return render_template('enter_pin.html', form=form)
@@ -110,8 +108,7 @@ def enter_pin():
 @application.route('/', methods=['POST'])
 @login_required
 def verify_pin():
-    global voter_active
-    if voter_active:
+    if session['voter_active']:
         return redirect('/cast-vote')
 
     form = PinForm(request.form)
@@ -130,7 +127,7 @@ def verify_pin():
             if voted:
                 return render_template('enter_pin.html', message="You've already voted. PIN already used", form=form)
             else:
-                voter_active = True
+                session['voter_active'] = True
                 return redirect('/cast-vote')
         else:
             # no matching entry in database, try again
@@ -142,27 +139,22 @@ def verify_pin():
 @application.route('/cast-vote', methods=['GET'])
 @login_required
 def choose_candidate():
-    global voter_active
-    global candidates_json
-    if not voter_active:
+    if not session['voter_active']:
         return redirect('')
     else:
-        if not candidates_json:
-            updateCandidatesJson()
-        return render_template('cast_vote.html', candidates=candidates_json['candidates'])
+        if not session['candidates_json']:
+            session['candidates_json'] = getCandidatesJson()
+        return render_template('cast_vote.html', candidates=session['candidates_json']['candidates'])
 
 @application.route('/cast-vote', methods=['POST'])
 @login_required
 def cast_vote():
-    global voter_active
-    global candidates_json
-    global voted_candidate
-    if voter_active:
+    if session['voter_active']:
         candidate_id = int(request.json['candidate_id'])
         if not candidate_id:
-            voted_candidate = 'SPOILT'
+            session['voted_candidate'] = 'SPOILT'
         else:
-            voted_candidate = getCandidateWithPK(candidate_id, candidates_json['candidates'])
+            session['voted_candidate'] = getCandidateWithPK(candidate_id, session['candidates_json']['candidates'])
         return 'OK'
     else:
         return redirect('')
@@ -170,29 +162,22 @@ def cast_vote():
 @application.route('/confirm-vote', methods=['GET'])
 @login_required
 def show_candidate():
-    global voter_active
-    global candidates_json
-    global voted_candidate
-    if voter_active and voted_candidate:
-        return render_template('confirm_vote.html', candidate=voted_candidate)
+    if session['voter_active'] and session['voted_candidate']:
+        return render_template('confirm_vote.html', candidate=session['voted_candidate'])
     else:
         return redirect('')
 
 @application.route('/confirm-vote', methods=['POST'])
 @login_required
 def confirm_vote():
-    global voter_active
-    global candidates_json
-    global voted_candidate
-    global vote_sent
     confirm = int(request.json['confirm'])
-    if confirm and voter_active and voted_candidate:
+    if confirm and session['voter_active'] and session['voted_candidate']:
         # TODO: What do we send in case of spoilt ballot
-        if sendVote(voted_candidate):
+        if sendVote(session['voted_candidate']):
             # Voting successful
-            voter_active = False
-            voted_candidate = None
-            vote_sent = True
+            session['voter_active'] = False
+            session['voted_candidate'] = None
+            session['vote_sent'] = True
         return 'OK'
     else:
         return redirect('')
@@ -200,13 +185,11 @@ def confirm_vote():
 @application.route('/youve-voted')
 @login_required
 def youve_voted():
-    global voter_active
-    global voted_candidate
-    global vote_sent
     # Voting unsuccessful, retry (should redirect to enter pin?)
-    if voter_active and voted_candidate and (not vote_sent):
+    if session['voter_active'] and session['voted_candidate'] and (not session['vote_sent']):
         return redirect('/cast-vote')
-    vote_sent = False
+    session['vote_sent'] = False
+    session.pop('candidates_json', None)
     return render_template('youve_voted.html')
 
 # Gets url to check if the voter pin is ok
@@ -223,11 +206,10 @@ def createCandidatesURL():
     return url
 
 # Sets candidates_json to the correct stuff for that station
-def updateCandidatesJson():
-    global candidates_json
+def getCandidatesJson():
     dbresult = urllib2.urlopen(createCandidatesURL()).read()
     resultjson = json.loads(dbresult)
-    candidates_json = resultjson
+    return resultjson
 
 def sendVote(voted_candidate):
     url = "http://results.eelection.co.uk/vote/"
