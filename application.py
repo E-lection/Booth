@@ -194,13 +194,6 @@ def youve_voted():
         return redirect('/cast-vote')
     return render_template('youve_voted.html')
 
-# Gets url to check if the voter pin is ok
-def createPapiURL(pin):
-    station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))
-    pin = "/pin_code/" + urllib.quote(pin)
-    url = "http://pins.eelection.co.uk/verify_pin_code_and_check_eligibility"+station_id+pin
-    return url
-
 # Gets PAPI resposne for a voter pin
 def getPapiResponse(pin):
     station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))
