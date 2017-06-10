@@ -114,18 +114,13 @@ def verify_pin():
     form = PinForm(request.form)
     if form.validate_on_submit():
         pin = request.form['voterpin']
-        url = createPapiURL(pin)
-        print url
-        try:
-            dbresult = urllib2.urlopen(url).read()
-        except:
-            return render_template('enter_pin.html', message="Inavlid Request", form=form)
-        resultjson = json.loads(dbresult)
-        success = resultjson['valid_pin']
+        session['voterpin'] = pin
+        papiResponse = getPapiResponse(pin)
+        print(papiResponse)
+        success = papiResponse['valid_pin']
         if success:
             # matching entry found
-            # TODO: What to do when the user has already voted?, where to the 'voted' field from?
-            voted = False
+            voted = papiResponse['already_voted']
             if voted:
                 return render_template('enter_pin.html', message="You've already voted. PIN already used", form=form)
             else:
@@ -177,11 +172,16 @@ def confirm_vote():
     confirm = int(request.json['confirm'])
     if confirm and session['voter_active'] and session['voted_candidate']:
         # TODO: What do we send in case of spoilt ballot
-        if sendVote(session['voted_candidate']):
-            # Voting successful
-            session['voter_active'] = False
-            session['voted_candidate'] = None
-            session['vote_sent'] = True
+        if 'voterpin' in session:
+            if invalidateVoterPin(session['voterpin']):
+                if sendVote(session['voted_candidate']):
+                    # Voting successful
+                    session['voter_active'] = False
+                    session['voted_candidate'] = None
+                    session['vote_sent'] = True
+        #         else:
+        #     else:
+        # else:
         return 'OK'
     else:
         return redirect('')
@@ -200,6 +200,29 @@ def createPapiURL(pin):
     pin = "/pin_code/" + urllib.quote(pin)
     url = "http://pins.eelection.co.uk/verify_pin_code_and_check_eligibility"+station_id+pin
     return url
+
+# Gets PAPI resposne for a voter pin
+def getPapiResponse(pin):
+    station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))
+    pin = "/pin_code/" + urllib.quote(pin)
+    url = "http://pins.eelection.co.uk/verify_pin_code_and_check_eligibility"+station_id+pin
+    try:
+        dbresult = urllib2.urlopen(url).read()
+    except:
+        return None
+    return json.loads(dbresult)
+
+# Returns true iff voter pin valid and successfully invalidates it, false otherwise
+def invalidateVoterPin(pin):
+    station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))
+    pin = "/pin_code/" + urllib.quote(pin)
+    url = "http://pins.eelection.co.uk/verify_pin_code_and_make_ineligible"+station_id+pin
+    try:
+        dbresult = urllib2.urlopen(url).read()
+    except:
+        return False
+    resultjson = json.loads(dbresult)
+    return resultjson['success']
 
 # Gets the list of candidates for that station
 def createCandidatesURL():
