@@ -115,12 +115,13 @@ def verify_pin():
     if form.validate_on_submit():
         pin = request.form['voterpin']
         url = createPapiURL(pin)
+        print url
         try:
             dbresult = urllib2.urlopen(url).read()
         except:
             return render_template('enter_pin.html', message="Inavlid Request", form=form)
         resultjson = json.loads(dbresult)
-        success = resultjson['success']
+        success = resultjson['valid_pin']
         if success:
             # matching entry found
             # TODO: What to do when the user has already voted?, where to the 'voted' field from?
@@ -197,7 +198,7 @@ def youve_voted():
 def createPapiURL(pin):
     station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))
     pin = "/pin_code/" + urllib.quote(pin)
-    url = "http://pins.eelection.co.uk/verify_pin_code"+station_id+pin
+    url = "http://pins.eelection.co.uk/verify_pin_code_and_check_eligibility"+station_id+pin
     return url
 
 # Gets the list of candidates for that station
