@@ -1,3 +1,11 @@
+html {
+	background-color: #ffffff;
+}
+
+.hero-banner {
+    padding-bottom: 0px;
+}
+
 /* NAVBAR STUFF */
 .navbar > .content > .navbar-wrapper {
   margin: 0;
@@ -18,13 +26,22 @@
 }
 
 /* FOOTER STUFF */
+.footer {
+    border-top: 5px solid #005ea5;
+    background-color: #dee0e2;
+    min-height: 0px;
+    margin-top: 30px;
+    padding-top: 20px;
+    padding-bottom: 10px;
+}
+
 .footer > .content {
   padding-left: 30px;
 }
 
 .form-control {
   font-size: 20px;
-  height: 45px;
+  height: 50px;
   width: 500px;
 }
 
@@ -37,6 +54,12 @@
 }
 
 /* BOOTH LOGIN */
+.booth-info-entry > .form-control {
+    font-size: 20px;
+    height: 50px;
+    width: 300px;
+}
+
 .booth-info-entry {
   font-size: 25px;
 }
