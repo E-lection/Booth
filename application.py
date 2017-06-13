@@ -116,7 +116,6 @@ def verify_pin():
         pin = request.form['voterpin']
         session['voterpin'] = pin
         papiResponse = getPapiResponse(pin)
-        print(papiResponse)
         success = papiResponse['valid_pin']
         if success:
             # matching entry found
@@ -127,6 +126,7 @@ def verify_pin():
                 session['voter_active'] = True
                 session['vote_sent'] = False
                 session['candidates_json'] = None
+                session['voting_error'] = None
                 return redirect('/cast-vote')
         else:
             # no matching entry in database, try again
@@ -177,14 +177,19 @@ def confirm_vote():
     if confirm and session['voter_active'] and session['voted_candidate']:
         # TODO: What do we send in case of spoilt ballot
         if 'voterpin' in session:
-            if invalidateVoterPin(session['voterpin']):
-                if sendVote(session['voted_candidate']):
+            session['voted_candidate']['pin_code'] = session['voterpin']
+            session['voted_candidate']['station_id'] = flask_login.current_user.station_id
+            resultsResp = sendVote(session['voted_candidate'])
+            print(resultsResp)
+            if resultsResp:
+                if resultsResp['success'] == True:
                     # Voting successful
-                    session['voter_active'] = False
-                    session['voted_candidate'] = None
                     session['vote_sent'] = True
-        #         else:
-        #     else:
+                else:
+                    session['voting_error'] = resultsResp['error']
+                session['voter_active'] = False
+                session['voted_candidate'] = None
+            # else:
         # else:
         return 'OK'
     else:
@@ -193,9 +198,13 @@ def confirm_vote():
 @application.route('/youve-voted')
 @login_required
 def youve_voted():
+    if session['voting_error']:
+        session['voting_error'] = None
+        return render_template('enter_pin.html', message="Voter pin already used.", form=form)
     # Voting unsuccessful, retry (should redirect to enter pin?), we have the voted_candidate with us though
     if session['voter_active'] and session['voted_candidate'] and (not session['vote_sent']):
         return redirect('/cast-vote')
+    session['vote_sent'] = False
     return render_template('youve_voted.html')
 
 # Gets PAPI resposne for a voter pin
@@ -208,18 +217,6 @@ def getPapiResponse(pin):
     except:
         return None
     return json.loads(dbresult)
-
-# Returns true iff voter pin valid and successfully invalidates it, false otherwise
-def invalidateVoterPin(pin):
-    station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))
-    pin = "/pin_code/" + urllib.quote(pin)
-    url = "http://pins.eelection.co.uk/verify_pin_code_and_make_ineligible"+station_id+pin
-    try:
-        dbresult = urllib2.urlopen(url).read()
-    except:
-        return False
-    resultjson = json.loads(dbresult)
-    return resultjson['success']
 
 # Gets the list of candidates for that station
 def createCandidatesURL():
@@ -236,7 +233,12 @@ def getCandidatesJson():
 def sendVote(voted_candidate):
     url = "http://results.eelection.co.uk/vote/"
     response = requests.post(url=url, data=json.dumps(voted_candidate))
-    return  response.status_code==200
+    if response.status_code==200:
+        resultJson = json.loads(response.text)
+        return resultJson
+    else:
+        #Coudn't contact results server
+        return None
 
 def getCandidateWithPK(pk, candidates):
     global candidates_json
