@@ -6,6 +6,7 @@
     <link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <link href="/static/css/govstrap.css" rel="stylesheet" media="screen">
     <link href="/static/css/main.css" rel="stylesheet" media="screen">
+        <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% endblock %}
   </head>
@@ -33,6 +34,18 @@
         </div>
       </div>
     </section>
+
+    {% if message %}
+    <section class="container-fluid error-banner">
+      <div class="content">
+        <div class="row">
+          <div class="col-sm-12">
+              <h3>Error: {% block error %}{{ message }}{% endblock %}</h3>
+          </div>
+        </div>
+      </div>
+    </section>
+    {% endif %}
 
     <section class="container-fluid">
       <div class="content">
