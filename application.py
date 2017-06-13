@@ -143,6 +143,10 @@ def choose_candidate():
     else:
         if not session['candidates_json']:
             session['candidates_json'] = getCandidatesJson()
+            if len(session['candidates_json']['candidates']) == 0:
+                session['voter_active'] = False
+                form = PinForm(request.form)
+                return render_template('enter_pin.html', message="No running candidates found for this constituency.", form=form)
         return render_template('cast_vote.html', candidates=session['candidates_json']['candidates'])
 
 @application.route('/cast-vote', methods=['POST'])
