@@ -92,12 +92,12 @@ html {
 }
 
 .booth-pin-entry > .control-label {
-  font-size: 25px;
+  font-size: 28px;
   line-height: 70px;
 }
 
 .booth-pin-entry > .help-block {
-  font-size: 20px;
+  font-size: 24px;
 }
 
 /* VOTE CASTING OPTIONS */
