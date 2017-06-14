@@ -180,9 +180,8 @@ def confirm_vote():
             session['voted_candidate']['pin_code'] = session['voterpin']
             session['voted_candidate']['station_id'] = flask_login.current_user.station_id
             resultsResp = sendVote(session['voted_candidate'])
-            print(resultsResp)
             if resultsResp:
-                if resultsResp['success'] == True:
+                if resultsResp['success']:
                     # Voting successful
                     session['vote_sent'] = True
                 else:
@@ -200,6 +199,7 @@ def confirm_vote():
 def youve_voted():
     if session['voting_error']:
         session['voting_error'] = None
+        form = PinForm(request.form)
         return render_template('enter_pin.html', message="Voter pin already used.", form=form)
     # Voting unsuccessful, retry (should redirect to enter pin?), we have the voted_candidate with us though
     if session['voter_active'] and session['voted_candidate'] and (not session['vote_sent']):
@@ -237,7 +237,7 @@ def sendVote(voted_candidate):
         resultJson = json.loads(response.text)
         return resultJson
     else:
-        #Coudn't contact results server
+        # Coudn't contact results server
         return None
 
 def getCandidateWithPK(pk, candidates):
