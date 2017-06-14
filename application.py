@@ -132,7 +132,7 @@ def verify_pin():
             # no matching entry in database, try again
             return render_template('enter_pin.html', message="Invalid Voter PIN", form=form)
 
-    return render_template('enter_pin.html', form=form)
+    return render_template('enter_pin.html', message="Invalid voter pin entered", form=form)
 
 # Checks if the voter is logged in and loads candidate options
 @application.route('/cast-vote', methods=['GET'])
