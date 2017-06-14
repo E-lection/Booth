@@ -5,11 +5,6 @@
   {{ super() }}
 {% endblock %}
 
-{% block content %}
-  {{ super() }}
-You are the voter.
-{% endblock %}
-
 {% block body %}
   {{ super() }}
   <form action="{{ url_for('verify_pin') }}" method="post" name="verify-pin">

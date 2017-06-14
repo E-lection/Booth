@@ -6,7 +6,7 @@
   <script type="text/javascript" src="{{ url_for('static', filename='js/castvote.js') }}"></script>
 {% endblock %}
 
-{% block content %}
+{% block banner %}
   {{ super() }}
   <p>These are your candidates for the constituency of {{ candidates[0].fields.constituency }}.</p>
   <p>Press the number next to your desired candidate followed by the Enter key.</p>

@@ -103,7 +103,7 @@ def enter_pin():
     if session['voter_active']:
         return redirect('/cast-vote')
     form = PinForm(request.form)
-    return render_template('enter_pin.html', form=form)
+    return render_template('enter_pin.html', form=form, not_banner=True)
 
 @application.route('/', methods=['POST'])
 @login_required

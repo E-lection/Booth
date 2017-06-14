@@ -25,15 +25,17 @@
       </div>
     </nav>
 
+    {% if not not_banner %}
     <section class="container-fluid hero-banner">
       <div class="content">
         <div class="row">
           <div class="col-sm-12">
-            <h2>{% block content %}{% endblock %}</h2>
+            <h2>{% block banner %}{% endblock %}</h2>
           </div>
         </div>
       </div>
     </section>
+    {% endif %}
 
     {% if message %}
     <section class="container-fluid error-banner">
