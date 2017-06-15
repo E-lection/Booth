@@ -212,7 +212,7 @@ def youve_voted():
 def getPapiResponse(pin):
     station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))
     pin = "/pin_code/" + urllib.quote(pin)
-    url = "http://127.0.0.1:7000/verify_pin_code_and_check_eligibility"+station_id+pin
+    url = "http://pins.eelection.co.uk/verify_pin_code_and_check_eligibility"+station_id+pin
     print url
     try:
         request = urllib2.Request(url)
@@ -225,7 +225,7 @@ def getPapiResponse(pin):
 # Gets the list of candidates for that station
 def createCandidatesURL():
     station_id = "/" + urllib.quote(str(flask_login.current_user.station_id))
-    url = "http://127.0.0.1:8000/get_candidates"+station_id
+    url = "http://voting.eelection.co.uk/get_candidates"+station_id
     return url
 
 # Sets candidates_json to the correct stuff for that station
@@ -237,7 +237,7 @@ def getCandidatesJson():
     return resultjson
 
 def sendVote(voted_candidate):
-    url = "http://127.0.0.1:9000/vote/"
+    url = "http://results.eelection.co.uk/vote/"
     response = requests.post(url=url, data=json.dumps(voted_candidate),
                         headers={'Authorization': BOOTH_KEY})
     if response.status_code==200:
