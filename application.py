@@ -51,6 +51,7 @@ def login():
             session['voter_active'] = False
             session['voted_candidate'] = None
             session['vote_sent'] = False
+            session['cancel'] = False
             return redirect('')
         else:
             return render_template('login.html', message="Login unsuccessful.", form=form)
@@ -155,8 +156,11 @@ def choose_candidate():
 def cast_vote():
     if session['voter_active']:
         candidate_id = int(request.json['candidate_id'])
-        if not candidate_id:
+        if candidate_id == 0:
             session['voted_candidate'] = 'SPOILT'
+        elif candidate_id == -1:
+            # session['candidates_json'] = None
+            session['voted_candidate'] = 'CANCEL'
         else:
             session['voted_candidate'] = getCandidateWithPK(candidate_id, session['candidates_json']['candidates'])
         return 'OK'
@@ -176,28 +180,34 @@ def show_candidate():
 def confirm_vote():
     confirm = int(request.json['confirm'])
     if confirm and session['voter_active'] and session['voted_candidate']:
+        if session['voted_candidate'] == 'CANCEL':
+            session['cancel'] = True
+            session['voter_active'] = False
+            session['voted_candidate'] = None
+            return 'OK'
         # TODO: What do we send in case of spoilt ballot
-        if 'voterpin' in session:
-            session['voted_candidate']['pin_code'] = session['voterpin']
-            session['voted_candidate']['station_id'] = flask_login.current_user.station_id
-            resultsResp = sendVote(session['voted_candidate'])
-            if resultsResp:
-                if resultsResp['success']:
-                    # Voting successful
-                    session['vote_sent'] = True
-                else:
-                    session['voting_error'] = resultsResp['error']
-                session['voter_active'] = False
-                session['voted_candidate'] = None
-            # else:
-        # else:
-        return 'OK'
-    else:
-        return redirect('')
+        session['voted_candidate']['pin_code'] = session['voterpin']
+        session['voted_candidate']['station_id'] = flask_login.current_user.station_id
+        resultsResp = sendVote(session['voted_candidate'])
+        if resultsResp:
+            if resultsResp['success']:
+                # Voting successful
+                session['vote_sent'] = True
+            else:
+                session['voting_error'] = resultsResp['error']
+            session['voter_active'] = False
+            session['voted_candidate'] = None
+        else:
+            session['vote_sent'] = False
+    return 'OK'
 
 @application.route('/youve-voted')
 @login_required
 def youve_voted():
+    if session['cancel']:
+        session['cancel'] = False
+        form = PinForm(request.form)
+        return render_template('enter_pin.html', message="Session cancelled.", form=form)
     if session['voting_error']:
         session['voting_error'] = None
         form = PinForm(request.form)
