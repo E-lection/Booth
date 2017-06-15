@@ -1,6 +1,7 @@
 # $ pip install --upgrade -r requirements.txt
 # $ python -m flask run
 
+from api_key_verification import BOOTH_KEY
 from flask import Flask, render_template, request, redirect, session
 from flask_wtf import FlaskForm as Form
 from forms import LoginForm
@@ -212,8 +213,11 @@ def getPapiResponse(pin):
     station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))
     pin = "/pin_code/" + urllib.quote(pin)
     url = "http://pins.eelection.co.uk/verify_pin_code_and_check_eligibility"+station_id+pin
+    print url
     try:
-        dbresult = urllib2.urlopen(url).read()
+        request = urllib2.Request(url)
+        request.add_header("Authorization", BOOTH_KEY)
+        dbresult = urllib2.urlopen(request).read()
     except:
         return None
     return json.loads(dbresult)
@@ -226,14 +230,18 @@ def createCandidatesURL():
 
 # Sets candidates_json to the correct stuff for that station
 def getCandidatesJson():
-    dbresult = urllib2.urlopen(createCandidatesURL()).read()
+    request = urllib2.Request(createCandidatesURL())
+    request.add_header("Authorization", BOOTH_KEY);
+    dbresult = urllib2.urlopen(request).read()
     resultjson = json.loads(dbresult)
     return resultjson
 
 def sendVote(voted_candidate):
     url = "http://results.eelection.co.uk/vote/"
-    response = requests.post(url=url, data=json.dumps(voted_candidate))
+    response = requests.post(url=url, data=json.dumps(voted_candidate),
+                        headers={'Authorization': BOOTH_KEY})
     if response.status_code==200:
+        print "sent vote"
         resultJson = json.loads(response.text)
         return resultJson
     else:
