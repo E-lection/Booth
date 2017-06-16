@@ -54,7 +54,7 @@ def login():
             session['cancel'] = False
             return redirect('')
         else:
-            return render_template('login.html', message="Login unsuccessful.", form=form)
+            return render_template('login.html', error_message="Login unsuccessful.", form=form)
     return render_template('login.html', form=form)
 
 # Checks user user_id and station_id for that usename and password
@@ -84,7 +84,7 @@ def logout():
 # handle login failed
 @application.errorhandler(401)
 def page_not_found(e):
-    return render_template('login.html', message="Login unsuccessful.", form=form)
+    return render_template('login.html', error_message="Login unsuccessful.", form=form)
 
 
 # callback to reload the user object
@@ -123,7 +123,7 @@ def verify_pin():
             # matching entry found
             voted = papiResponse['already_voted']
             if voted:
-                return render_template('enter_pin.html', message="You've already voted. PIN already used", form=form)
+                return render_template('enter_pin.html', error_message="You've already voted. PIN already used", form=form)
             else:
                 session['voter_active'] = True
                 session['vote_sent'] = False
@@ -132,9 +132,9 @@ def verify_pin():
                 return redirect('/cast-vote')
         else:
             # no matching entry in database, try again
-            return render_template('enter_pin.html', message="Invalid Voter PIN", form=form)
+            return render_template('enter_pin.html', error_message="Invalid Voter PIN", form=form)
 
-    return render_template('enter_pin.html', message="Invalid voter pin entered", form=form)
+    return render_template('enter_pin.html', error_message="Invalid voter pin entered", form=form)
 
 # Checks if the voter is logged in and loads candidate options
 @application.route('/cast-vote', methods=['GET'])
@@ -148,7 +148,7 @@ def choose_candidate():
             if len(session['candidates_json']['candidates']) == 0:
                 session['voter_active'] = False
                 form = PinForm(request.form)
-                return render_template('enter_pin.html', message="No running candidates found for this constituency.", form=form)
+                return render_template('enter_pin.html', error_message="No running candidates found for this constituency.", form=form)
         return render_template('cast_vote.html', candidates=session['candidates_json']['candidates'])
 
 @application.route('/cast-vote', methods=['POST'])
@@ -207,11 +207,11 @@ def youve_voted():
     if session['cancel']:
         session['cancel'] = False
         form = PinForm(request.form)
-        return render_template('enter_pin.html', message="Session cancelled.", form=form)
+        return render_template('enter_pin.html', form=form)
     if session['voting_error']:
         session['voting_error'] = None
         form = PinForm(request.form)
-        return render_template('enter_pin.html', message="Voter pin already used.", form=form)
+        return render_template('enter_pin.html', error_message="Voter pin already used.", form=form)
     # Voting unsuccessful, retry (should redirect to enter pin?), we have the voted_candidate with us though
     if session['voter_active'] and session['voted_candidate'] and (not session['vote_sent']):
         return redirect('/cast-vote')

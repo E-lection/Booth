@@ -37,12 +37,12 @@
     </section>
     {% endif %}
 
-    {% if message %}
+    {% if error_message %}
     <section class="container-fluid error-banner">
       <div class="content">
         <div class="row">
           <div class="col-sm-12">
-              <h3>Error: {% block error %}{{ message }}{% endblock %}</h3>
+              <h3>Error: {% block error %}{{ error_message }}{% endblock %}</h3>
           </div>
         </div>
       </div>
