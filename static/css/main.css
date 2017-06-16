@@ -41,6 +41,7 @@ html {
   display: block;
   color: white;
   padding: 0px;
+	padding-top: 10px;
 }
 
 .error-banner > .content > .row {
