@@ -15,9 +15,9 @@ def validate_station(station_id):
 def validate_username(username):
         return isinstance(username, str)
 
-def create_user(username, password, station_id):
+def create_user(username, password, station_id, vote_url, public_key):
     hashed_password = hash_password(password)
-    db.insertUser(username, hashed_password, station_id)
+    db.insertUser(username, hashed_password, station_id, vote_url, public_key)
 
 if __name__ == "__main__":
     username = raw_input("Username for booth: ")
@@ -30,4 +30,9 @@ if __name__ == "__main__":
     while (not validate_station(station_id)):
         station_id = raw_input("Station id can only be integer, input station id: ")
 
-    create_user(username, password, station_id)
+    vote_url = raw_input("Vote url: ")
+    # Validate url using regex
+
+    public_key = raw_input("Public Key: ")
+
+    create_user(username, password, station_id, vote_url, public_key)

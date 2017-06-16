@@ -15,6 +15,11 @@ import json
 import models as db
 from passlib.apps import custom_app_context as pwd_context
 import requests
+import string
+import random
+from Crypto.Cipher import PKCS1_OAEP
+from Crypto.PublicKey import RSA
+import base64
 
 application = Flask(__name__)
 
@@ -27,10 +32,11 @@ login_manager.login_view = "login"
 
 # Booth User model
 class User(UserMixin):
-    def __init__(self, id, username, station_id):
+    def __init__(self, id, username, station_id, vote_url, public_key):
         self.id = id
         self.station_id = station_id
-        self.username = username
+        self.vote_url = vote_url
+        self.public_key = public_key
 
     def __repr__(self):
         return "%s/%d" % (self.username, self.station_id)
@@ -45,7 +51,7 @@ def login():
         password = request.form['password']
         valid_user = get_valid_user(username, password)
         if valid_user:
-            user = User(valid_user[0], username, valid_user[1])
+            user = User(valid_user[0], username, valid_user[1], valid_user[2], valid_user[3])
             login_user(user)
             session['candidates_json'] = None
             session['voter_active'] = False
@@ -68,7 +74,9 @@ def get_valid_user(username, password):
             if pwd_context.verify(password, password_hash):
                 user_id = user[0]
                 station_id = user[3]
-                return (user_id, station_id)
+                vote_url = user[4]
+                public_key = user[5]
+                return (user_id, station_id, vote_url, public_key)
             break
     #TODO: Error if there is no user matching
     return None
@@ -94,7 +102,7 @@ def load_user(userid):
     users_with_id = filter(lambda x: x[0] == int(userid), users)
     if users_with_id:
         user = users_with_id[0]
-        return User(user[0], user[1], user[3])
+        return User(user[0], user[1], user[3], user[4], user[5])
     else:
         return None
 
@@ -186,9 +194,7 @@ def confirm_vote():
             session['voted_candidate'] = None
             return 'OK'
         # TODO: What do we send in case of spoilt ballot
-        session['voted_candidate']['pin_code'] = session['voterpin']
-        session['voted_candidate']['station_id'] = flask_login.current_user.station_id
-        resultsResp = sendVote(session['voted_candidate'])
+        resultsResp = sendEncryptedVote(session['voted_candidate'], flask_login.current_user.vote_url, flask_login.current_user.public_key, session['voterpin'], flask_login.current_user.station_id)
         if resultsResp:
             if resultsResp['success']:
                 # Voting successful
@@ -209,9 +215,10 @@ def youve_voted():
         form = PinForm(request.form)
         return render_template('enter_pin.html', form=form, not_banner=True)
     if session['voting_error']:
+        error_message = session['voting_error']
         session['voting_error'] = None
         form = PinForm(request.form)
-        return render_template('enter_pin.html', error_message="Voter pin already used.", form=form, not_banner=True)
+        return render_template('enter_pin.html', error_message=error_message, form=form, not_banner=True)
     # Voting unsuccessful, retry (should redirect to enter pin?), we have the voted_candidate with us though
     if session['voter_active'] and session['voted_candidate'] and (not session['vote_sent']):
         return redirect('/cast-vote')
@@ -223,7 +230,6 @@ def getPapiResponse(pin):
     station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))
     pin = "/pin_code/" + urllib.quote(pin)
     url = "http://pins.eelection.co.uk/verify_pin_code_and_check_eligibility"+station_id+pin
-    print url
     try:
         request = urllib2.Request(url)
         request.add_header("Authorization", BOOTH_KEY)
@@ -251,7 +257,26 @@ def sendVote(voted_candidate):
     response = requests.post(url=url, data=json.dumps(voted_candidate),
                         headers={'Authorization': BOOTH_KEY})
     if response.status_code==200:
-        print "sent vote"
+        resultJson = json.loads(response.text)
+        return resultJson
+    else:
+        # Coudn't contact results server
+        return None
+
+import difflib
+def sendEncryptedVote(voted_candidate, vote_url, public_key, voter_pin, station_id):
+    secret = id_generator()
+    vote_url += 'vote_encrypted/'
+    voted_candidate['secret'] = secret
+    vote = json.dumps(voted_candidate)
+    public_key = public_key.replace('\\n', '\n')
+    key = RSA.importKey(public_key)
+    cipher = PKCS1_OAEP.new(key)
+    encrypted_vote = base64.b64encode(cipher.encrypt(vote))
+    data = {'pin_code': voter_pin, 'station_id': station_id, 'encrypted_vote': encrypted_vote}
+    response = requests.post(url=vote_url, data=json.dumps(data),
+                        headers={'Authorization': BOOTH_KEY})
+    if response.status_code==200:
         resultJson = json.loads(response.text)
         return resultJson
     else:
@@ -264,6 +289,9 @@ def getCandidateWithPK(pk, candidates):
         if candidate['pk'] == pk:
             return candidate['fields']
     return None
+
+def id_generator(size=4, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app.
