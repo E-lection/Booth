@@ -3,6 +3,7 @@
 
 {% block head %}
   {{ super() }}
+  <script type="text/javascript" src="{{ url_for('static', filename='js/login.js') }}"></script>
 {% endblock %}
 
 {% block banner %}
@@ -12,19 +13,22 @@
 
 {% block body %}
   {{ super() }}
-    <form action="{{ url_for('login') }}" method="post" name="login" autocomplete="off">
+  {% if message %}
+    <h3>{{ message }}</h3>
+  {% endif %}
+    <form action="{{ url_for('login') }}" id="loginform" method="post" name="login" autocomplete="off">
       <div class="form-group booth-info-entry">
         <label class="control-label" for="username">Username</label>
-        <input type="text" class="form-control form-login" name="username">
+        <input type="text" id="username-input" class="form-control form-login" name="username"  autofocus="autofocus" data-index="1">
         <p class="help-block">Enter booth username here.</p>
       </div>
       <div class="form-group booth-info-entry">
         <label class="control-label" for="password">Password</label>
-        <input type="password" class="form-control form-login" name="password">
+        <input type="password" id="password-input" class="form-control form-login" name="password" data-index="2">
         <p class="help-block">Enter password here.</p>
       </div>
       {{ form.csrf_token }}
-      <button class="btn btn-primary btn-start" type="submit" value="Login">Login</button>
+      <button class="btn btn-primary btn-start" type="submit" value="Login" style="display: none">Login</button>
 
     </form>
 {% endblock %}
