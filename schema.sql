@@ -3,5 +3,7 @@ drop table if exists users;
     id integer primary key autoincrement,
     username text not null,
     password text not null,
-    station_id integer not null
+    station_id integer not null,
+    vote_url text not null,
+    public_key text not null
 );
