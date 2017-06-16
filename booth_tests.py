@@ -7,6 +7,8 @@ import create_user
 TEST_USERNAME = 'booth_test'
 TEST_PASSWORD = 'test_secret'
 TEST_STATION_ID = 1
+TEST_VOTE_URL = "http://results.eelection.co.uk/"
+TEST_PUBLIC_KEY = 123123
 BAD_LOGIN = 'bad'
 
 class BoothTestCase(unittest.TestCase):
@@ -14,7 +16,7 @@ class BoothTestCase(unittest.TestCase):
     def setUp(self):
         application.application.config['TESTING'] = True
         self.application = application.application.test_client()
-        create_user.create_user(TEST_USERNAME, TEST_PASSWORD, TEST_STATION_ID)
+        create_user.create_user(TEST_USERNAME, TEST_PASSWORD, TEST_STATION_ID, TEST_VOTE_URL, TEST_PUBLIC_KEY)
 
     def tearDown(self):
         db.deleteUser('booth_test')
