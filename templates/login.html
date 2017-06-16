@@ -5,16 +5,13 @@
   {{ super() }}
 {% endblock %}
 
-{% block content %}
+{% block banner %}
   {{ super() }}
   Log in using the Booth credentials you have been given.
 {% endblock %}
 
 {% block body %}
   {{ super() }}
-  {% if message %}
-    <h3>{{ message }}</h3>
-  {% endif %}
     <form action="{{ url_for('login') }}" method="post" name="login" autocomplete="off">
       <div class="form-group booth-info-entry">
         <label class="control-label" for="username">Username</label>

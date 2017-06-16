@@ -1,6 +1,7 @@
 # $ pip install --upgrade -r requirements.txt
 # $ python -m flask run
 
+from api_key_verification import BOOTH_KEY
 from flask import Flask, render_template, request, redirect, session
 from flask_wtf import FlaskForm as Form
 from forms import LoginForm
@@ -50,9 +51,10 @@ def login():
             session['voter_active'] = False
             session['voted_candidate'] = None
             session['vote_sent'] = False
+            session['cancel'] = False
             return redirect('')
         else:
-            return render_template('login.html', message="Login unsuccessful.", form=form)
+            return render_template('login.html', error_message="Login unsuccessful.", form=form)
     return render_template('login.html', form=form)
 
 # Checks user user_id and station_id for that usename and password
@@ -82,7 +84,7 @@ def logout():
 # handle login failed
 @application.errorhandler(401)
 def page_not_found(e):
-    return render_template('login.html', message="Login unsuccessful.", form=form)
+    return render_template('login.html', error_message="Login unsuccessful.", form=form)
 
 
 # callback to reload the user object
@@ -103,7 +105,7 @@ def enter_pin():
     if session['voter_active']:
         return redirect('/cast-vote')
     form = PinForm(request.form)
-    return render_template('enter_pin.html', form=form)
+    return render_template('enter_pin.html', form=form, not_banner=True)
 
 @application.route('/', methods=['POST'])
 @login_required
@@ -116,23 +118,23 @@ def verify_pin():
         pin = request.form['voterpin']
         session['voterpin'] = pin
         papiResponse = getPapiResponse(pin)
-        print(papiResponse)
         success = papiResponse['valid_pin']
         if success:
             # matching entry found
             voted = papiResponse['already_voted']
             if voted:
-                return render_template('enter_pin.html', message="You've already voted. PIN already used", form=form)
+                return render_template('enter_pin.html', error_message="You've already voted. PIN already used", form=form, not_banner=True)
             else:
                 session['voter_active'] = True
                 session['vote_sent'] = False
                 session['candidates_json'] = None
+                session['voting_error'] = None
                 return redirect('/cast-vote')
         else:
             # no matching entry in database, try again
-            return render_template('enter_pin.html', message="Invalid Voter PIN", form=form)
+            return render_template('enter_pin.html', error_message="Invalid Voter PIN", form=form, not_banner=True)
 
-    return render_template('enter_pin.html', form=form)
+    return render_template('enter_pin.html', error_message="Invalid voter pin entered", form=form, not_banner=True)
 
 # Checks if the voter is logged in and loads candidate options
 @application.route('/cast-vote', methods=['GET'])
@@ -143,6 +145,10 @@ def choose_candidate():
     else:
         if not session['candidates_json']:
             session['candidates_json'] = getCandidatesJson()
+            if len(session['candidates_json']['candidates']) == 0:
+                session['voter_active'] = False
+                form = PinForm(request.form)
+                return render_template('enter_pin.html', error_message="No running candidates found for this constituency.", form=form, not_banner=True)
         return render_template('cast_vote.html', candidates=session['candidates_json']['candidates'])
 
 @application.route('/cast-vote', methods=['POST'])
@@ -150,8 +156,11 @@ def choose_candidate():
 def cast_vote():
     if session['voter_active']:
         candidate_id = int(request.json['candidate_id'])
-        if not candidate_id:
+        if candidate_id == 0:
             session['voted_candidate'] = 'SPOILT'
+        elif candidate_id == -1:
+            # session['candidates_json'] = None
+            session['voted_candidate'] = 'CANCEL'
         else:
             session['voted_candidate'] = getCandidateWithPK(candidate_id, session['candidates_json']['candidates'])
         return 'OK'
@@ -171,27 +180,42 @@ def show_candidate():
 def confirm_vote():
     confirm = int(request.json['confirm'])
     if confirm and session['voter_active'] and session['voted_candidate']:
+        if session['voted_candidate'] == 'CANCEL':
+            session['cancel'] = True
+            session['voter_active'] = False
+            session['voted_candidate'] = None
+            return 'OK'
         # TODO: What do we send in case of spoilt ballot
-        if 'voterpin' in session:
-            if invalidateVoterPin(session['voterpin']):
-                if sendVote(session['voted_candidate']):
-                    # Voting successful
-                    session['voter_active'] = False
-                    session['voted_candidate'] = None
-                    session['vote_sent'] = True
-        #         else:
-        #     else:
-        # else:
-        return 'OK'
-    else:
-        return redirect('')
+        session['voted_candidate']['pin_code'] = session['voterpin']
+        session['voted_candidate']['station_id'] = flask_login.current_user.station_id
+        resultsResp = sendVote(session['voted_candidate'])
+        if resultsResp:
+            if resultsResp['success']:
+                # Voting successful
+                session['vote_sent'] = True
+            else:
+                session['voting_error'] = resultsResp['error']
+            session['voter_active'] = False
+            session['voted_candidate'] = None
+        else:
+            session['vote_sent'] = False
+    return 'OK'
 
 @application.route('/youve-voted')
 @login_required
 def youve_voted():
+    if session['cancel']:
+        session['cancel'] = False
+        form = PinForm(request.form)
+        return render_template('enter_pin.html', form=form, not_banner=True)
+    if session['voting_error']:
+        session['voting_error'] = None
+        form = PinForm(request.form)
+        return render_template('enter_pin.html', error_message="Voter pin already used.", form=form, not_banner=True)
     # Voting unsuccessful, retry (should redirect to enter pin?), we have the voted_candidate with us though
     if session['voter_active'] and session['voted_candidate'] and (not session['vote_sent']):
         return redirect('/cast-vote')
+    session['vote_sent'] = False
     return render_template('youve_voted.html')
 
 # Gets PAPI resposne for a voter pin
@@ -199,23 +223,14 @@ def getPapiResponse(pin):
     station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))
     pin = "/pin_code/" + urllib.quote(pin)
     url = "http://pins.eelection.co.uk/verify_pin_code_and_check_eligibility"+station_id+pin
+    print url
     try:
-        dbresult = urllib2.urlopen(url).read()
+        request = urllib2.Request(url)
+        request.add_header("Authorization", BOOTH_KEY)
+        dbresult = urllib2.urlopen(request).read()
     except:
         return None
     return json.loads(dbresult)
-
-# Returns true iff voter pin valid and successfully invalidates it, false otherwise
-def invalidateVoterPin(pin):
-    station_id = "/station_id/" + urllib.quote(str(flask_login.current_user.station_id))
-    pin = "/pin_code/" + urllib.quote(pin)
-    url = "http://pins.eelection.co.uk/verify_pin_code_and_make_ineligible"+station_id+pin
-    try:
-        dbresult = urllib2.urlopen(url).read()
-    except:
-        return False
-    resultjson = json.loads(dbresult)
-    return resultjson['success']
 
 # Gets the list of candidates for that station
 def createCandidatesURL():
@@ -225,14 +240,23 @@ def createCandidatesURL():
 
 # Sets candidates_json to the correct stuff for that station
 def getCandidatesJson():
-    dbresult = urllib2.urlopen(createCandidatesURL()).read()
+    request = urllib2.Request(createCandidatesURL())
+    request.add_header("Authorization", BOOTH_KEY);
+    dbresult = urllib2.urlopen(request).read()
     resultjson = json.loads(dbresult)
     return resultjson
 
 def sendVote(voted_candidate):
     url = "http://results.eelection.co.uk/vote/"
-    response = requests.post(url=url, data=json.dumps(voted_candidate))
-    return  response.status_code==200
+    response = requests.post(url=url, data=json.dumps(voted_candidate),
+                        headers={'Authorization': BOOTH_KEY})
+    if response.status_code==200:
+        print "sent vote"
+        resultJson = json.loads(response.text)
+        return resultJson
+    else:
+        # Coudn't contact results server
+        return None
 
 def getCandidateWithPK(pk, candidates):
     global candidates_json

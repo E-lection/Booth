@@ -25,22 +25,24 @@
       </div>
     </nav>
 
+    {% if not not_banner %}
     <section class="container-fluid hero-banner">
       <div class="content">
         <div class="row">
           <div class="col-sm-12">
-            <h2>{% block content %}{% endblock %}</h2>
+            <h2>{% block banner %}{% endblock %}</h2>
           </div>
         </div>
       </div>
     </section>
+    {% endif %}
 
-    {% if message %}
+    {% if error_message %}
     <section class="container-fluid error-banner">
       <div class="content">
         <div class="row">
           <div class="col-sm-12">
-              <h3>Error: {% block error %}{{ message }}{% endblock %}</h3>
+              <h3>Error: {% block error %}{{ error_message }}{% endblock %}</h3>
           </div>
         </div>
       </div>
@@ -53,14 +55,6 @@
           <div class="col-sm-12">
             {% block body %}{% endblock %}
           </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="navbar navbar-fixed-bottom footer">
-      <div class="content">
-        <div class="row footer-bottom">
-          Coming soon to a polling station near you...
         </div>
       </div>
     </section>

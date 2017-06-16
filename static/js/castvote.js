@@ -2,6 +2,7 @@ var keycode_to_number = { 49:1, 50:2, 51:3, 52:4, 53:5, 54:6, 55:7, 56:8, 57:9 }
 var keycode_to_numpad = { 97:1, 98:2, 99:3, 100:4, 101:5, 102:6, 103:7, 104:8, 105:9 }
 
 var keycode_enter = 13;
+var keycode_zero = 48;
 
 function code(e) {
   e = e || window.event;
@@ -49,6 +50,24 @@ window.onload = function() {
         contentType: 'application/json;charset=UTF-8',
         data: JSON.stringify({
           "candidate_id": selected_candidate_pk
+        }),
+        success: function(data) {
+          window.location.replace('/confirm-vote');
+        },
+        error: function(e) {
+          alert("Error Occurred")
+        },
+      });
+    }
+    // If they press zero, i.e, go back
+    if (keycode === keycode_zero) {
+      // var candidate_name = document.getElementById(current_selected).textContent;
+      $.ajax({
+        type: "POST",
+        url: "/cast-vote",
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+          "candidate_id": -1
         }),
         success: function(data) {
           window.location.replace('/confirm-vote');
