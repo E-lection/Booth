@@ -25,6 +25,20 @@ html {
   padding: 2px;
 }
 
+/* ERROR BAR STUFF */
+.error-banner {
+  background-color: #e02a2a;
+  margin-top: -10px;
+  display: block;
+  color: white;
+  padding: 0px;
+}
+
+.error-banner > .content > .row {
+    margin-top: 0px;
+    margin-bottom: 10px;
+}
+
 /* FOOTER STUFF */
 .footer {
     border-top: 5px solid #005ea5;
