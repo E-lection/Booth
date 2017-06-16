@@ -8,15 +8,17 @@
 
 {% block banner %}
   {{ super() }}
-  <p>These are your candidates for the constituency of {{ candidates[0].fields.constituency }}.</p>
-  <p>Press the number next to your desired candidate followed by the Enter key.</p>
-  <p>Press 0 to cancel.</p>
+  <div id="castvote-text">
+    <p>These are your candidates for the constituency of {{ candidates[0].fields.constituency }}.</p>
+    <p>Press the number next to your desired candidate followed by the Enter key.</p>
+    <p>Press 0 to cancel.</p>
+  </div>
 {% endblock %}
 
 {% block body %}
   {{ super() }}
   <!--<form action="{{ url_for('cast_vote') }}" method="post" name="form-cast-vote">-->
-  <div class="form-cast-vote">
+  <div class="form-cast-vote" id="voteform">
     <!--repeat this table row for each item in items-->
     {% for candidate in candidates %}
       <div class="checkbox">
@@ -31,5 +33,6 @@
       </label>
     </div>
   </div>
+  <div id="spinnerContainer" class="spinner"></div>
   <p class="help-block cast-vote" id="cast-vote"><b>Press enter to cast your vote.</b></p>
 {% endblock %}

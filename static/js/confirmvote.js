@@ -6,13 +6,18 @@ function code(e) {
 }
 
 window.onload = function(){
-
   // If the user presses a button
   document.onkeypress = function(e){
       var keycode = code(e);
 
       // If this is the enter key we say they've voted
       if (keycode === keycode_enter) {
+
+        // Loading spinner
+        document.getElementById('confirm-text').innerHTML = '';
+        document.getElementById('confirm-body').style.display = 'none';
+        spinnerInit();
+
         $.ajax({
           type: "POST",
           url: "/confirm-vote",

@@ -223,29 +223,16 @@ function spinnerInit() {
     $('#spinnerContainer').after(new Spinner(opts).spin().el);
 }
 
-// If they have entered their pin
-document.getElementById('pinform').onkeypress = function(e) {
-  var key = e.charCode || e.keyCode || 0;
-  var target = e.target;
-  // If they are in the username box we dont submit the form
-  if (key === 13) {
-      document.getElementById('pinform').style.display = 'none';
-      spinnerInit();
-  }
-}
-
-// If they have entered their pin
-document.onkeypress = function(e) {
-  if(window.location.href.indexOf("cast-vote") > -1)
-  {
-    alert("yasssss");
-  }
-  alert("This worked");
-  var key = e.charCode || e.keyCode || 0;
-  var target = e.target;
-  // If they are in the username box we dont submit the form
-  if (key === 13) {
-      document.getElementById('voteform').style.display = 'none';
-      spinnerInit();
+window.onload = function() {
+  // If they have entered their pin
+  document.getElementById('pinform').onkeypress = function(e) {
+    var key = e.charCode || e.keyCode || 0;
+    var target = e.target;
+    // If they are in the username box we dont submit the form
+    if (key === 13) {
+        document.getElementById('error-banner').style.display = 'none';
+        document.getElementById('pinform').style.display = 'none';
+        spinnerInit();
+    }
   }
 }

@@ -8,15 +8,18 @@
 
 {% block banner %}
   {{ super() }}
-  {% if candidate=='CANCEL' %}
-    <p>Are you sure you want to cancel voting? </p>
-  {% else %}
-    <p>You have selected: </p>
-  {% endif %}
+  <div id="confirm-text">
+    {% if candidate=='CANCEL' %}
+      <p>Are you sure you want to cancel voting? </p>
+    {% else %}
+      <p>You have selected: </p>
+    {% endif %}
+  </div>
 {% endblock %}
 
 {% block body %}
   {{ super() }}
+  <div id="confirm-body">
   {% if candidate!='CANCEL' %}
     <div class="confirm-vote">
       {% if candidate=='SPOILT' %}
@@ -25,7 +28,10 @@
         <label class="block-label"> {{ candidate.first_name }} {{ candidate.last_name }} - {{ candidate.party }} </label>
       {% endif %}
   {% endif %}
-      <p class="help-block">Press <b>enter</b> to confirm or <b>any other key</b> to go back.
-    </div>
+  <p class="help-block">Press <b>enter</b> to confirm or <b>any other key</b> to go back.
+  </div>
+  </div>
+
+  <div id="spinnerContainer" class="spinner"></div>
 
 {% endblock %}

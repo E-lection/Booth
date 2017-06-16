@@ -44,6 +44,13 @@ window.onload = function() {
     // If they press the enter keyCode
     if (keycode === keycode_enter && current_selected != "") {
       // var candidate_name = document.getElementById(current_selected).textContent;
+
+      // Loading spinner
+      document.getElementById('castvote-text').innerHTML = '';
+      document.getElementById('voteform').style.display = 'none';
+      document.getElementById('cast-vote').style.display = 'none';
+      spinnerInit();
+
       $.ajax({
         type: "POST",
         url: "/cast-vote",
