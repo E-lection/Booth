@@ -143,3 +143,13 @@ html {
   font-size: 25px;
   line-height: 50px;
 }
+
+/* SPINNER */
+.spinner {
+	position: fixed;
+	left: 50%;
+	top: 140px;
+	margin-left: -32px; /* -1 * image width / 2 */
+	margin-top: -32px;  /* -1 * image height / 2 */
+	z-index: 99999999;
+}
