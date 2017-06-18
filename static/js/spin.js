@@ -59,7 +59,7 @@
             width: 5,
             radius: 10,
             rotate: 0,
-            color: "#000",
+            color: "#005EA5",
             speed: 1,
             trail: 100,
             opacity: .25,
