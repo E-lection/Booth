@@ -8,7 +8,7 @@
 {% block banner %}
   {{ super() }}
   <div id="castvote-text">
-    <p>These are your candidates for the constituency of {{ candidates[0].fields.constituency }}.</p>
+    <p>These are your candidates for <u>{{ candidates[0].fields.constituency }}.</u></p>
     <p>Press the number next to your desired candidate followed by the Enter key.</p>
     <p>Press 0 to cancel.</p>
   </div>
@@ -19,6 +19,7 @@
   <!--<form action="{{ url_for('cast_vote') }}" method="post" name="form-cast-vote">-->
   <div class="form-cast-vote" id="voteform">
     <!--repeat this table row for each item in items-->
+    <div style="display: none">{{ candidates|randomise }}</div>
     {% for candidate in candidates %}
       <div class="checkbox">
         <label class="block-label" id="{{ loop.index }}" name="{{ candidate.pk }}">

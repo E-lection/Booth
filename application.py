@@ -21,7 +21,7 @@ from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 import base64
 
-import time
+from random import shuffle
 
 application = Flask(__name__)
 
@@ -31,6 +31,7 @@ application.secret_key = 'development key'
 login_manager = LoginManager()
 login_manager.init_app(application)
 login_manager.login_view = "login"
+
 
 # Booth User model
 class User(UserMixin):
@@ -42,6 +43,10 @@ class User(UserMixin):
 
     def __repr__(self):
         return "%s/%d" % (self.username, self.station_id)
+
+@application.template_filter('randomise')
+def randomise(s):
+    return shuffle(s)
 
 # Displays login page for the clerk to set up the booth
 @application.route('/login', methods=['GET', 'POST'])
