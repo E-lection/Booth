@@ -270,7 +270,6 @@ def sendVote(voted_candidate):
         # Coudn't contact results server
         return None
 
-import difflib
 def sendEncryptedVote(voted_candidate, vote_url, public_key, voter_pin, station_id):
     secret = id_generator()
     vote_url += 'vote_encrypted/'
