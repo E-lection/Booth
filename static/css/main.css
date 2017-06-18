@@ -138,6 +138,11 @@ html {
   line-height: 50px;
 }
 
+/* CANCEL VOTE */
+#confirm-body > p.help-block {
+	font-size: 25px;
+}
+
 /* YOU HAVE VOTED */
 .count-down {
   font-size: 25px;
@@ -153,4 +158,8 @@ html {
   margin-top: -32px;
   z-index: 99999999;
   display: block;
+}
+
+.help-block {
+	font-size: 25px;
 }
