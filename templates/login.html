@@ -3,7 +3,6 @@
 
 {% block head %}
   {{ super() }}
-  <script type="text/javascript" src="{{ url_for('static', filename='js/login.js') }}"></script>
 {% endblock %}
 
 {% block banner %}
@@ -31,4 +30,8 @@
       <button class="btn btn-primary btn-start" type="submit" value="Login" style="display: none">Login</button>
 
     </form>
+{% endblock %}
+
+{% block foot %}
+  <script type="text/javascript" src="{{ url_for('static', filename='js/login.js') }}"></script>
 {% endblock %}

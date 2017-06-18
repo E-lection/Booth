@@ -3,9 +3,6 @@
 
 {% block head %}
   {{ super() }}
-  <script type="text/javascript" src="{{ url_for('static', filename='js/youvoted.js') }}"></script>
-  <script>
-  </script>
 {% endblock %}
 
 {% block banner %}
@@ -18,4 +15,8 @@
   <div class="count-down help-block">
     You can leave now.
   </div>
+{% endblock %}
+
+{% block foot %}
+  <script type="text/javascript" src="{{ url_for('static', filename='js/youvoted.js') }}"></script>
 {% endblock %}

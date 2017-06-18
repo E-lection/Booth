@@ -230,7 +230,10 @@ window.onload = function() {
     var target = e.target;
     // If they are in the username box we dont submit the form
     if (key === 13) {
-        document.getElementById('error-banner').style.display = 'none';
+        let error_banner = document.getElementById('error-banner');
+        if (error_banner) {
+          error_banner.style.display = 'none';
+        }
         document.getElementById('pinform').style.display = 'none';
         spinnerInit();
     }

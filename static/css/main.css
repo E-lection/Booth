@@ -147,9 +147,10 @@ html {
 /* SPINNER */
 .spinner {
 	position: fixed;
-	left: 50%;
-	top: 140px;
-	margin-left: -32px; /* -1 * image width / 2 */
-	margin-top: -32px;  /* -1 * image height / 2 */
-	z-index: 99999999;
+  left: 50%;
+  top: 140px;
+  margin-right: -50%;
+  margin-top: -32px;
+  z-index: 99999999;
+  display: block;
 }

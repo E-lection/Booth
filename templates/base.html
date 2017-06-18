@@ -7,8 +7,6 @@
     <link href="/static/css/govstrap.css" rel="stylesheet" media="screen">
     <link href="/static/css/main.css" rel="stylesheet" media="screen">
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/spin.js') }}"></script>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% endblock %}
@@ -62,8 +60,11 @@
       </div>
     </section>
 
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
-    <script src="/static/js/bootstrap.min.js"></script>
-    <script src="/static/js/govstrap.js"></script>
+    {% block foot %}
+      <script src="http://code.jquery.com/jquery-latest.js"></script>
+      <script src="/static/js/bootstrap.min.js"></script>
+      <script src="/static/js/govstrap.js"></script>
+      <script type="text/javascript" src="{{ url_for('static', filename='js/spin.js') }}"></script>
+    {% endblock %}
   </body>
 </html>

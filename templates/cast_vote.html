@@ -3,7 +3,6 @@
 
 {% block head %}
   {{ super() }}
-  <script type="text/javascript" src="{{ url_for('static', filename='js/castvote.js') }}"></script>
 {% endblock %}
 
 {% block banner %}
@@ -35,4 +34,9 @@
   </div>
   <div id="spinnerContainer" class="spinner"></div>
   <p class="help-block cast-vote" id="cast-vote"><b>Press enter to cast your vote.</b></p>
+{% endblock %}
+
+{% block foot %}
+  {{ super() }}
+  <script type="text/javascript" src="{{ url_for('static', filename='js/castvote.js') }}"></script>
 {% endblock %}
